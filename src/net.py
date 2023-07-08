@@ -16,6 +16,9 @@ class Agent:
         self.learning_rate = 0.001
         self.q_network = self._build_model()
         self.target_network = self._build_model()
+    def save(self):
+        self.q_network.save("q-network")
+        self.target_network.save("target_network")        
     def _build_model(self):
         """
         This function creates the "brain" of the agent, which is the intersection manager.
