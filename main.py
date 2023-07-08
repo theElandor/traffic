@@ -90,7 +90,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         traci.addStepListener(listener)
 
         log_file_initialization(chunk_name, settings, model_chosen, listener, time)
-        log_print("Simulation starts")
+        # log_print("Simulation starts")
 
         if model_chosen == 'Coop':
             model = Cooperative(settings, extra_configs)
@@ -110,26 +110,26 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 idle_times = {}
                 traffic = {}
                 for crossroad in crossroads.keys(): #for each crossroad
-                    log_print('Handling crossroad {}'.format(crossroad))
+                    # log_print('Handling crossroad {}'.format(crossroad))
                     dc[crossroad], idle_times[crossroad], traffic[crossroad]= model.intersectionControl(crossroads[crossroad])
                     #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
                         break                
                 departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count)
             if not listener.getSimulationStatus():
-                #save manager brain
-                manager.q_network.save_weights("/home/eros/BACKUP_PROJECT/DecentralizedCoordinationAlgorithms/nn/")
-                manager.target_network.save_weights("/home/eros/BACKUP_PROJECT/DecentralizedCoordinationAlgorithms/nn/")
-                log_print('Simulation finished')
+                #save manager braine
+                print("Saving brain....")
+                manager.save()
+                # log_print('Simulation finished')
                 print("Simulation finished!")
                 traci.close()
                 break
             
 
     except traci.exceptions.FatalTraCIError:
-        manager.q_network.save_weights("/home/eros/BACKUP_PROJECT/DecentralizedCoordinationAlgorithms/nn/")
-        manager.target_network.save_weights("/home/eros/BACKUP_PROJECT/DecentralizedCoordinationAlgorithms/nn/")
-        log_print('Simulation interrupted')
+        print("Saving manager brain....")
+        manager.save()
+        # log_print('Simulation interrupted')
         print("Simulation interrupted")
     
     return crossroads_names
