@@ -115,7 +115,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                     #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
                         break                
-                departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count)
+                train_count = departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count)
             if not listener.getSimulationStatus():
                 #save manager braine
                 print("Saving brain....")
