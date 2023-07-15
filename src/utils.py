@@ -11,6 +11,7 @@ import yaml
 from subprocess import Popen, PIPE, STDOUT
 from LinkedList import ListNode
 import numpy as np
+import math
 
 
 from src.vehicleCA import VehicleCA
@@ -441,7 +442,7 @@ def spawnCars(cars_to_spawn, settings,routes, offset=0):
         # Vehicles created are automatically added to VehiclesDict
     return 
 
-def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_configs,traffic,non_players = [], manager=None, reward=0, mapping=None, train_count=0):
+def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_configs,traffic,non_players = [], manager=None, reward=0, mapping=None, train_count=0, sample=0, prev_state=None, collisions=0, cars_to_depart=0, action=None):
     """
     Depart specified cars from respective crossroads, handling Traffic Waiting Time and Crossroad Waiting Time
     :param settings: dictionary containing configuration of current simulation
@@ -452,32 +453,50 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
     """
     multiple_crossing = True
     batch_size = 64
-    log_print('departCars: start departing')    
+    
     waiting = {}
     veicDict = {}
     mass = {}
+    trajectories = {}
+    
     crossing_cars = extra_configs['crossing_cars']
     for crossroad in dc.keys():
         waiting[crossroad]=[]
         for veic in dc[crossroad]:
             waiting[crossroad].append(veic.getID())
             veicDict[veic.getID()] = veic
-    trajectories = {}
     if extra_configs['simul']:
         for crossroad in dc.keys():
             trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)
         counter = 0
-        state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
+        current_state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
     for crossroad in dc.keys():
-        if(crossroad == "F"):            
-            # 1) call act method do select action
-            action = manager.act(state) #returns a integer corrisponding to action
-            # action is a list of ordered integers representing the lanes of the cars that have to cross [0,2,1]
+        if(crossroad == "F"):                
+            #TRAINING THE NETWORK--------------------
+            if manager.train == True:
+                print("PREV_STATE "+str(prev_state))
+                reward = get_reward(prev_state, current_state, collisions,cars_to_depart)
+                done = False
+                if prev_state: #this way we exclude first sample.
+                    manager.remember(prev_state, action, reward, current_state, done)
+                sample +=1
+                if len(manager.experience_replay) < batch_size:
+                    manager.set_exploration_epsilon() #almost always exploring
+                if len(manager.experience_replay) > batch_size and sample >= 10:
+                    manager.set_training_epsilon()
+                    sample = 0
+                    train_count+=1
+                    print("Training(" + str(train_count)+"/5)")
+                    manager.retrain(batch_size)
+                    if train_count == 5:
+                        print("UPDATING TARGET NETWORK")
+                        train_count = 0
+                        manager.alighn_target_model()
+            print(reward)            
+            action = manager.act(current_state)
             departing_cars = mapping[action]
             print("Action is mapped with: " + str(departing_cars))
             cars_to_depart = []        
-            # for c in dc["F"]:
-            #     print(c.getID())
             for i,lane in enumerate(in_edges[crossroad]): #check on each lane if there is a car waiting that has to depart
                 j = 0
                 while j < len(departing_cars):
@@ -487,32 +506,9 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
                                 cars_to_depart.append(car)
                     j+=1 
             collisions = detect_collisions(cars_to_depart, trajectories[crossroad])
-            #perform action
-            for car in cars_to_depart:
-                traci.vehicle.resume(car.getID())
-                car.resetCrossroadWaitingTime()
-            #TRAINING THE NETWORK--------------------
-            next_state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
-            #reward depends on new state and old state
-            reward = get_reward(state, next_state, collisions,cars_to_depart)
-            print("reward: " + str(reward))
-            action = action
-            done = False
-            manager.remember(state, action, reward, next_state, done)    
-            # if terminated:
-            #     agent.alighn_target_model()
-            #     break
-            if len(manager.experience_replay) > batch_size:
-                manager.epsilon = 0.2
-                train_count+=1
-                print("Training(" + str(train_count)+"/5)")
-                manager.retrain(batch_size)
-                # manager.experience_replay.clear()
-                if train_count == 5:
-                    print("UPDATING TARGET NETWORK")
-                    train_count = 0
-                    manager.alighn_target_model()
-            print(reward)
+            
+            perform_action(cars_to_depart) #makes given cars depart from crossing
+
         else:         
             for i in range(crossing_cars):
                 if i < len(dc[crossroad]) and dc[crossroad][i].getID() in waiting[crossroad]: # and i < mass[crossroad]
@@ -559,7 +555,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
                 traci.simulationStep()
         if not listener.getSimulationStatus():
             break
-    return train_count
+    return train_count, sample, current_state, collisions, cars_to_depart, action
 
 
 def collectWT(crossroads_names):
@@ -723,8 +719,10 @@ def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_con
                 front = 1
         q_dict[road] += front
 
-        if mean_wt[road] != 0:
-            mean_wt[road] = mean_wt[road]/(len(traffic[test_crossing][road])+front)
+        if mean_wt[road] != 0: #MEAN IS NOW JUST THE SUM
+            pass
+            # mean_wt[road] = mean_wt[road]/(len(traffic[test_crossing][road])+front)
+            
     #transform dict into list of floats    
     for road in in_edges[test_crossing]:
         twt_input.append(mean_wt[road])
@@ -758,7 +756,7 @@ def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_con
     print(twt_input_formatted)     
     print(q_input_formatted)            
     # return [[directions_input_formatted],[twt_input_formatted],[q_input_formatted]]
-    return [[directions_input_formatted],[q_input_formatted]]
+    return [[directions_input_formatted],[q_input_formatted],[twt_input_formatted]]
 
 def detect_collisions(cars_to_depart, trajectories):
     """
@@ -798,19 +796,42 @@ def get_reward(state1, state2, collisions, cars_to_depart):
 
 
     standard deviation of q lenghts and throughput?
-    """
-    # waiting_times1 = state1[1][0][0]
-
+    """    
+    if not state1:
+        return -1
+    # wt and ql of previous state
+    waiting_times1 = state1[1][0][0]
     q_len1 = state1[1][0][0]
-    # waiting_times2 = state1[1][0][0]
-    q_len2 = state1[1][0][0]
+
+    #wt and ql of current state
+    waiting_times2 = state2[1][0][0]
+    q_len2 = state2[1][0][0]
 
     q_tot = len(cars_to_depart) #numero di auto che partono dall'incrocio nello stato attuale
-    # wt_std = np.std(waiting_times2) #std dei waiting times dello stato di destinazione
-    # ql_std = np.std(q_len2)#std delle lunghezze delle code allo stato di destinazione
     
     q_std_1 = np.std(q_len1)
     q_std_2 = np.std(q_len2)
     q_std_tot = q_std_1 - q_std_2
+
+    #give more priority to lane with more waiting time
+    max_index = np.argmax(waiting_times1)
+    max_value1 = waiting_times1[max_index]
+    max_value2 = waiting_times2[max_index]
+    
+    wt_std_tot = (max_value1 - max_value2)
+    if max_value1 > 0:
+        wt_std_tot = wt_std_tot * math.log(max_value1)
+
+    if wt_std_tot <= 0:
+        wt_reward = -wt_std_tot
+    else:
+        wt_reward = math.log(wt_std_tot)
+    reward = q_tot + q_std_tot + wt_reward - collisions*20
     # return (q_tot - sigmoid(wt_std) - (collisions))
-    return q_tot + q_std_tot - collisions
+    print("Reward: thr=" +str(q_tot)+" collisions:"+str(collisions*20)+" qlen-std:"+str(q_std_tot) +" wt-reward: " +str(wt_reward) + " tot:"+str(reward))
+    return reward
+
+def perform_action(cars_to_depart):
+    for car in cars_to_depart:
+        traci.vehicle.resume(car.getID())
+        car.resetCrossroadWaitingTime()            

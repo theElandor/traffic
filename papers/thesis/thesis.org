@@ -1,0 +1,50 @@
+#+TITLE: Gestione di veicoli autonomi agli incroci
+#+SETUPFILE: ./latex-theme.setup
+#+AUTHOR: Matteo Lugli
+#+DATE: 
+#+OPTIONS: num:2
+\newpage
+* Introduzione
+La guida autonoma nei prossimi anni diventerà progressivamente parte
+integrante della nostra vita, sostituendo una delle attività umane 
+tra le più stressanti e pericolose. 
+Soltanto nel 2021 in Italia sono stati registrati più di 150 mila incidenti
+stradali che hanno provocato circa 3000 morti e 200 mila feriti.
+Il ruolo principale della tecnologia è quello di creare soluzioni che mettano
+l'esperienza dell'uomo al centro, cercando di facilitare, migliorare e rendere 
+più sicure le attività quotidiane.
+A tal proposito la ricerca sui veicoli autonomi si è evoluta molto rapidamente negli ultimi anni,
+proponendosi di trasformare radicalmente il modo in cui guidiamo.
+La Society of Automotive Engineers (SAE) descrive il coinvolgimento umano alla guida tramite
+una classifica basata su 5 livelli:
++ Livello 0 \newline
+  Nessuna automazione: le auto non presentano dispositivi automatici in grado di dare
+  assistenza attiva al guidatore, che deve sempre mantenere il pieno controllo del veicolo.
+  Sono ricondotte a questo livello anche automobili equipaggiate con sistemi di frenata di 
+  emergenza o di rilevazione di collisioni imminenti.
++ Livello 1 \newline
+  Assistenza alla guida: il veicolo è dotato di sistemi come l'assistenza al mantenimento della
+  corsia (LKA) o il controllo di velocità adattivo (ACC). Il conducente è comumque pienamente
+  responsabile della guida, mantenendo il controllo del veicolo.
++ Livello 2 \newline
+  Automazione parziale alla guida: i veicoli sono equipaggiati con sistemi ADAS (/Advanced Driver Assistance Systems/)
+  che in certe situazioni possono aiutare attivamente il conducente con il controllo dello sterzo, l'accellerazione
+  e la frenata. /Autopilot/ di /Tesla/, che ad oggi viene continuamente aggiornato tramite
+  l'aggiunta di nuove funzionalità di assistenza alla guida, è ancora classificato come livello 2.
++ Livello 3 \newline
+  Automazione condizionata: il veicolo è in grado di gestire autonomamente la guida in
+  strada. Per legge, il conducente deve comunque essere sempre abilitato a poter mettere
+  le mani sul volante e prendere il controllo dell'auto. Alcune compagnie
+  come /Honda/ hanno rilasciato sul mercato automobili di livello 3 considerabili
+  completamente autonome in alcune zone urbane del giappone o sulle autostrade.
++ Livello 4 \newline
+  Automazione elevata: il veicolo è completamente autonomo nella guida e nella navigazione.
+  Nonostante sia comunque necessaria la presenza di un conducente, il suo intervento
+  non dovrebbe essere mai richiesto. Anche questi sistemi sono tipicamente funzionanti
+  soltanto in certe aree geografiche.
++ Livello 5 \newline
+  Automazione completa: il veicolo è autonomo in qualsiasi condizione, e non è necessaria
+  la presenza di un passeggero a bordo.
+  
+  
+

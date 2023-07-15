@@ -24,7 +24,7 @@ class VehicleAbstract(abc.ABC):
         self.crossroad_waiting_time = 0
         VehiclesDict.addVehicle(self)
         #uncomment following line to slow down vehicles
-        # traci.vehicle.setMaxSpeed(self.id, 7)        
+        traci.vehicle.setMaxSpeed(self.id, 10)        
     def __str__(self):
         return "Vehicle " + self.getID()
 

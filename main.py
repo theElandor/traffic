@@ -98,10 +98,17 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
             model = Competitive(settings)
         # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes
         non_players = ['10', '12', '3', '88', '96']
-        manager = Agent()
+        
+        manager = Agent(load=True, train=False)
         reward = 0
         train_count = 0
+        sample = 0
+        state=None
         done = False
+        collisions = 0
+        cars_to_depart = []
+        action=None
+        
         while True:
             if model_chosen == 'EB' or model_chosen == 'DA':
                 traci.simulationStep()
@@ -115,7 +122,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                     #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
                         break                
-                train_count = departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count)
+                train_count, sample, state, collisions, cars_to_depart, action = departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count, sample=sample, prev_state=state, collisions=collisions, cars_to_depart=cars_to_depart, action=action)
             if not listener.getSimulationStatus():
                 #save manager braine
                 print("Saving brain....")
