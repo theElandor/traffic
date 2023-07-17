@@ -13,7 +13,7 @@ stradali che hanno provocato circa 3000 morti e 200 mila feriti.
 Il ruolo principale della tecnologia è quello di creare soluzioni che mettano
 l'esperienza dell'uomo al centro, cercando di facilitare, migliorare e rendere 
 più sicure le attività quotidiane.
-A tal proposito la ricerca sui veicoli autonomi si è evoluta molto rapidamente negli ultimi anni,
+A tal proposito la ricerca si è evoluta molto rapidamente negli ultimi anni,
 proponendosi di trasformare radicalmente il modo in cui guidiamo.
 La Society of Automotive Engineers (SAE) descrive il coinvolgimento umano alla guida tramite
 una classifica basata su 5 livelli:
@@ -44,7 +44,42 @@ una classifica basata su 5 livelli:
   soltanto in certe aree geografiche.
 + Livello 5 \newline
   Automazione completa: il veicolo è autonomo in qualsiasi condizione, e non è necessaria
-  la presenza di un passeggero a bordo.
-  
-  
+  la presenza di un passeggero a bordo.    
 
+La guida in strada è un argomento 
+
+** Contributo di questa tesi
+Questa tesi vuole esplorare ulteriori possibilità offerte dagli algoritmi
+di coordinamento di veicoli autonomi agli incroci basati sulle aste.
+In particolare, vengono proposte alcune estensioni dell'algoritmo
+cooperativo spiegato in [paper gherardini] per cercare di migliorare
+/(i)/ il /throughput/ dell'incrocio e /(ii)/ il tempo di attesa nel 
+traffico dei veicoli tramite una migliore gestione indiretta delle situazioni
+di congestione.
+Si è poi proposto un algoritmo basato sul /Deep Q-Learning/[paper deepmind]
+in grado di allenare i manager degli incroci basandosi soltanto sull'esperienza
+passata, senza avere a disposizione dati di partenza.
+In particolare, si è voluto verificare che l'overhead dato dalla presenza di 
+un complesso meccanismo economico basato sulle aste fosse realmente necessario per mantenere
+la /fairness/ dell'incrocio.
+\newpage
+* Algoritmo
+\begin{algorithm}
+\caption{Algoritmo ad asta ibrida}\label{alg:cap}
+\begin{algorithmic}
+\Require $n \geq 0$
+\Ensure $y = x^n$
+\State $y \gets 1$
+\State $X \gets x$
+\State $N \gets n$
+\While{$N \neq 0$}
+\If{$N$ is even}
+    \State $X \gets X \times X$
+    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+\ElsIf{$N$ is odd}
+    \State $y \gets y \times X$
+    \State $N \gets N - 1$
+\EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}

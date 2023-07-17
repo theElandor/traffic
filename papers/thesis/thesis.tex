@@ -1,4 +1,4 @@
-% Created 2023-07-15 sab 11:30
+% Created 2023-07-16 dom 10:38
 % Intended LaTeX compiler: pdflatex
 \documentclass[letterpaper, 12pt]{article}
                       \usepackage{lmodern} % Ensures we have the right font
@@ -7,9 +7,8 @@
 \usepackage{graphicx}
 \usepackage{amsmath, amsthm, amssymb}
 \usepackage[table, xcdraw]{xcolor}
-\definecolor{bblue}{HTML}{0645AD}
-\usepackage[colorlinks]{hyperref}
-\hypersetup{colorlinks, linkcolor=blue, urlcolor=bblue}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage{titling}
 \setlength{\droptitle}{-6em}
 \setlength{\parindent}{0pt}
@@ -56,7 +55,7 @@
 
 \newpage
 \section{Introduzione}
-\label{sec:orgc2d66a5}
+\label{sec:orgc7851ce}
 La guida autonoma nei prossimi anni diventerà progressivamente parte
 integrante della nostra vita, sostituendo una delle attività umane 
 tra le più stressanti e pericolose. 
@@ -99,4 +98,41 @@ soltanto in certe aree geografiche.
 Automazione completa: il veicolo è autonomo in qualsiasi condizione, e non è necessaria
 la presenza di un passeggero a bordo.
 \end{itemize}
+\subsection{Contributo di questa tesi}
+\label{sec:orgb47c539}
+Questa tesi vuole esplorare ulteriori possibilità offerte dagli algoritmi
+di coordinamento di veicoli autonomi agli incroci basati sulle aste.
+In particolare, vengono proposte alcune estensioni dell'algoritmo
+cooperativo spiegato in [paper gherardini] per cercare di migliorare
+\emph{(i)} il \emph{throughput} dell'incrocio e \emph{(ii)} il tempo di attesa nel 
+traffico dei veicoli tramite una migliore gestione indiretta delle situazioni
+di congestione.
+Si è poi proposto un algoritmo basato sul \emph{Deep Q-Learning}[paper deepmind]
+in grado di allenare i manager degli incroci basandosi soltanto sull'esperienza
+passata, senza avere a disposizione dati di partenza.
+In particolare, si è voluto verificare che l'overhead dato dalla presenza di 
+un complesso meccanismo economico basato sulle aste fosse realmente necessario per mantenere
+la \emph{fairness} dell'incrocio.
+\newpage
+\section{Algoritmo}
+\label{sec:org4f8c7a3}
+\begin{algorithm}
+\caption{Algoritmo ad asta ibrida}\label{alg:cap}
+\begin{algorithmic}
+\Require $n \geq 0$
+\Ensure $y = x^n$
+\State $y \gets 1$
+\State $X \gets x$
+\State $N \gets n$
+\While{$N \neq 0$}
+\If{$N$ is even}
+    \State $X \gets X \times X$
+    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+\ElsIf{$N$ is odd}
+    \State $y \gets y \times X$
+    \State $N \gets N - 1$
+\EndIf
+\EndWhile
+\end{algorithmic}
+\end{algorithm}
 \end{document}

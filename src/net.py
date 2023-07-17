@@ -12,22 +12,24 @@ class Agent:
 
     def __init__(self, load, train):
         self.action_size = 15
-        self.experience_replay = deque(maxlen=200)
+        self.experience_replay = deque()
         self.gamma = 0.6  # discount rate
         #più gamma è vicino a 1, più si da importanza alle informazioni passate.
         self.training_epsilon = 0.2
         self.exploration_epsilon = 0.9
         self.train = train
+        self.q_path = "/home/eros/traffic/models/ql_wtv2/q-network"
+        self.target_path = "/home/eros/traffic/models/ql_wtv2/target-network"
         #
         if train == False: #we always want to exploit better solution
             self.epsilon = 0
         else:
-            self.epsilon = 0.2
+            self.epsilon = 0.3
         if load == False:
             self.q_network = self._build_model()
             self.target_network = self._build_model()
         else:
-            self.load("/home/eros/traffic/models/ql_wtv1/q-network","/home/eros/traffic/models/ql_wtv1/target-network")
+            self.load(self.q_path, self.target_path)
     def save(self):
         """
         Method that saves the weights of the neural network
@@ -72,24 +74,24 @@ class Agent:
         flattener = Flatten(input_shape=(4,4))(reshaper)
         x = Dense(64, activation="relu")(flattener)
         x = Dense(32, activation="relu")(x)
-        output_x = Dense(self.action_size, activation='softmax')(x)
+        output_x = Dense(self.action_size, activation='linear')(x)
         model_x = Model(inputs=[directions_input],outputs=output_x)
       
         queue_input = Input(shape=(4), name='queue_input_layer')
         y = Dense(64, activation="relu")(queue_input)
         y = Dense(32, activation="relu")(y)
         y = Dense(4, activation="sigmoid")(y)
-        # model_y = Model(inputs=[queue_input],outputs=y)
+        model_y = Model(inputs=[queue_input],outputs=y)
 
         waiting_time_input = Input(shape=(4), name='wt_input_layer')
         w = Dense(64, activation="relu")(waiting_time_input)
         w = Dense(32, activation="relu")(w)
         w = Dense(4, activation="sigmoid")(w)
-        # model_w = Model(inputs=[waiting_time_input],outputs=w)
-        multiplied = tf.keras.layers.Add()([y, w])
+        model_w = Model(inputs=[waiting_time_input],outputs=w)
+        
 
-        # combined = keras.layers.concatenate([model_x.output, model_y.output, model_w.output])a
-        combined = keras.layers.concatenate([model_x.output, multiplied])
+        combined = keras.layers.concatenate([model_x.output, model_y.output, model_w.output])
+        # combined = keras.layers.concatenate([model_x.output, multiplied])
         z = Dense(32, activation="relu")(combined)
         z = Dense(32, activation="relu")(z)
         z = Dense(self.action_size, activation="linear")(z)                
@@ -128,12 +130,12 @@ class Agent:
         minibatch = random.sample(self.experience_replay, batch_size)
         for state, action, reward, next_state, done in minibatch:
             print("DEBUG:" + str(state))
-            target = self.q_network.predict(state,verbose=0)            
-            if done:
-                target[0][action] = reward
-            else:
-                t = self.target_network.predict(next_state,verbose=0) #retrieve data from past experience                
-                target[0][action] = reward + self.gamma * np.amax(t)
+            target = self.q_network.predict(state,verbose=0)        
+            t = self.target_network.predict(next_state,verbose=0) #retrieve data from past experience
+            #here we sum reward and q-value. This means that the reward
+            #function and the neural network must return "compatible" values.
+            target[0][action] = reward + self.gamma * np.amax(t)
+            
             #train the network giving input from memory and        
             self.q_network.fit(state, target, epochs=1)
         gc.collect()

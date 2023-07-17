@@ -99,13 +99,14 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes
         non_players = ['10', '12', '3', '88', '96']
         
-        manager = Agent(load=True, train=False)
+        manager = Agent(load=False, train=True)
         reward = 0
         train_count = 0
         sample = 0
         state=None
         done = False
         collisions = 0
+        total_collisions = 0 
         cars_to_depart = []
         action=None
         
@@ -123,9 +124,12 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                     if not listener.getSimulationStatus():
                         break                
                 train_count, sample, state, collisions, cars_to_depart, action = departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count, sample=sample, prev_state=state, collisions=collisions, cars_to_depart=cars_to_depart, action=action)
+                if manager.train == False:
+                    total_collisions += collisions                
             if not listener.getSimulationStatus():
                 #save manager braine
                 print("Saving brain....")
+                print("Total collisions: " + str(total_collisions))
                 manager.save()
                 # log_print('Simulation finished')
                 print("Simulation finished!")
@@ -258,4 +262,3 @@ if __name__ == '__main__':
             print(f"Chunk {counter}/{len(configs)} finished")
 
     print("All done")
-

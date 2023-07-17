@@ -8,10 +8,13 @@
 #+LATEX_HEADER: \usepackage{amsmath, amsthm, amssymb}
 #+LATEX_HEADER: \usepackage[table, xcdraw]{xcolor}
 
-% Colorizing links in a nicer way.
-#+LATEX_HEADER: \definecolor{bblue}{HTML}{0645AD}
-#+LATEX_HEADER: \usepackage[colorlinks]{hyperref}
-#+LATEX_HEADER: \hypersetup{colorlinks, linkcolor=blue, urlcolor=bblue}
+#+LATEX_HEADER:\usepackage{algorithm}
+#+LATEX_HEADER:\usepackage{algpseudocode}
+
+# % Colorizing links in a nicer way.
+# #+LATEX_HEADER: \definecolor{bblue}{HTML}{0645AD}
+# #+LATEX_HEADER: \usepackage[colorlinks]{hyperref}
+# #+LATEX_HEADER: \hypersetup{colorlinks, linkcolor=blue, urlcolor=bblue}
 
 % Moving up the title.
 #+LATEX_HEADER: \usepackage{titling}

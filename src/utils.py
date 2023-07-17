@@ -691,12 +691,6 @@ def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_con
     return: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] --> bitvector representing directions
     """
     test_crossing = "F" # change this to test with other crossroads
-
-    # print(separator)
-    # print("cars waiting at crossroad")
-    # for car in dc[test_crossing]:
-    #     print(car.getID())
-    # print(separator)
     
     twt_input = []
     mean_wt = {}
@@ -799,39 +793,29 @@ def get_reward(state1, state2, collisions, cars_to_depart):
     """    
     if not state1:
         return -1
-    # wt and ql of previous state
-    waiting_times1 = state1[1][0][0]
-    q_len1 = state1[1][0][0]
 
-    #wt and ql of current state
-    waiting_times2 = state2[1][0][0]
+    q_len1 = state1[1][0][0]
     q_len2 = state2[1][0][0]
 
-    q_tot = len(cars_to_depart) #numero di auto che partono dall'incrocio nello stato attuale
-    
-    q_std_1 = np.std(q_len1)
-    q_std_2 = np.std(q_len2)
-    q_std_tot = q_std_1 - q_std_2
+    waiting_times1 = state1[2][0][0]
+    waiting_times2 = state2[2][0][0]
 
-    #give more priority to lane with more waiting time
+
     max_index = np.argmax(waiting_times1)
     max_value1 = waiting_times1[max_index]
     max_value2 = waiting_times2[max_index]
     
-    wt_std_tot = (max_value1 - max_value2)
-    if max_value1 > 0:
-        wt_std_tot = wt_std_tot * math.log(max_value1)
+    tr_tot = 2*len(cars_to_depart) #numero di auto che partono dall'incrocio nello stato attuale
+    collisions = collisions * 5
+    qmax_reward = (np.max(q_len2)/(np.sum(q_len2)+1))*4
+    wt_reward = (max_value2/np.sum(waiting_times2)+1)*4
 
-    if wt_std_tot <= 0:
-        wt_reward = -wt_std_tot
-    else:
-        wt_reward = math.log(wt_std_tot)
-    reward = q_tot + q_std_tot + wt_reward - collisions*20
-    # return (q_tot - sigmoid(wt_std) - (collisions))
-    print("Reward: thr=" +str(q_tot)+" collisions:"+str(collisions*20)+" qlen-std:"+str(q_std_tot) +" wt-reward: " +str(wt_reward) + " tot:"+str(reward))
+    print("Debuggin waiting time: ")
+    reward = tr_tot - qmax_reward - wt_reward - collisions
+    print("Reward: thr=" +str(tr_tot)+" cll:"+str(-collisions)+" qlen:"+str(qmax_reward) +" wt: " +str(-wt_reward) + " tot:"+str(reward))
     return reward
 
 def perform_action(cars_to_depart):
     for car in cars_to_depart:
         traci.vehicle.resume(car.getID())
-        car.resetCrossroadWaitingTime()            
+        car.resetCrossroadWaitingTime()
