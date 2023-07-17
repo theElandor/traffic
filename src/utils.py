@@ -471,7 +471,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
         counter = 0
         current_state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
     for crossroad in dc.keys():
-        if(crossroad == "F"):                
+        if(crossroad):                
             #TRAINING THE NETWORK--------------------
             if manager.train == True:
                 print("PREV_STATE "+str(prev_state))
@@ -690,8 +690,7 @@ def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_con
     return: queue length for each lane
     return: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] --> bitvector representing directions
     """
-    test_crossing = "F" # change this to test with other crossroads
-    
+    test_crossing = "F"
     twt_input = []
     mean_wt = {}
     directions_input = []
@@ -721,6 +720,11 @@ def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_con
     for road in in_edges[test_crossing]:
         twt_input.append(mean_wt[road])
         q_input.append(q_dict[road])
+    #normalize values between 0 and 1
+    for i in range(0,4):
+        twt_input[i] = twt_input[i]/(sum(twt_input)+1)
+        q_input[i] = q_input[i]/(sum(q_input)+1)
+
     # 0 1 0 0
     # E N O S
     mapping = {out_edges[test_crossing][0]:1, #E
@@ -788,7 +792,6 @@ def get_reward(state1, state2, collisions, cars_to_depart):
     y = queues
     collisions: integer
 
-
     standard deviation of q lenghts and throughput?
     """    
     if not state1:
@@ -799,20 +802,15 @@ def get_reward(state1, state2, collisions, cars_to_depart):
 
     waiting_times1 = state1[2][0][0]
     waiting_times2 = state2[2][0][0]
-
-
-    max_index = np.argmax(waiting_times1)
-    max_value1 = waiting_times1[max_index]
-    max_value2 = waiting_times2[max_index]
     
     tr_tot = 2*len(cars_to_depart) #numero di auto che partono dall'incrocio nello stato attuale
-    collisions = collisions * 5
-    qmax_reward = (np.max(q_len2)/(np.sum(q_len2)+1))*4
-    wt_reward = (max_value2/np.sum(waiting_times2)+1)*4
+    collisions = -collisions * 10
+    qmax_reward = -np.max(q_len2) * 2
+    wt_reward = -np.max(waiting_times2) * 2
 
     print("Debuggin waiting time: ")
-    reward = tr_tot - qmax_reward - wt_reward - collisions
-    print("Reward: thr=" +str(tr_tot)+" cll:"+str(-collisions)+" qlen:"+str(qmax_reward) +" wt: " +str(-wt_reward) + " tot:"+str(reward))
+    reward = tr_tot + qmax_reward + wt_reward + collisions
+    print("Reward: thr=" +str(tr_tot)+" cll:"+str(collisions)+" qlen:"+str(qmax_reward) +" wt: " +str(wt_reward) + " tot:"+str(reward))
     return reward
 
 def perform_action(cars_to_depart):
