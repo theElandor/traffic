@@ -3,6 +3,11 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Concatenate, Embedding, Reshape, Flatten
 from tensorflow.keras import Sequential
 import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense, Concatenate, Embedding, Reshape, Flatten
+from tensorflow.keras import Sequential
+import numpy as np
 import random
 from collections import deque
 from tensorflow import keras
@@ -13,14 +18,14 @@ class Agent:
     def __init__(self, load, train):
         self.action_size = 15
         self.experience_replay = deque()
-        self.gamma = 0.6  # discount rate
+        self.gamma = 0.5 # discount rate
         #più gamma è vicino a 1, più si da importanza alle informazioni passate.
         self.training_epsilon = 0.2
-        self.exploration_epsilon = 0.9
+        self.exploration_epsilon = 0.6
         self.train = train
-        self.q_path = "/home/eros/traffic/models/ql_wtv2/q-network"
-        self.target_path = "/home/eros/traffic/models/ql_wtv2/target-network"
-        #
+        self.model_version = "hope"
+        self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
+        self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"        
         if train == False: #we always want to exploit better solution
             self.epsilon = 0
         else:
@@ -72,6 +77,8 @@ class Agent:
         directions_input_embedder = Embedding(5,4,input_length=4)(directions_input)
         reshaper = Reshape((4,4))(directions_input_embedder)
         flattener = Flatten(input_shape=(4,4))(reshaper)
+
+
         x = Dense(64, activation="relu")(flattener)
         x = Dense(32, activation="relu")(x)
         output_x = Dense(self.action_size, activation='linear')(x)
@@ -80,21 +87,22 @@ class Agent:
         queue_input = Input(shape=(4), name='queue_input_layer')
         y = Dense(64, activation="relu")(queue_input)
         y = Dense(32, activation="relu")(y)
-        y = Dense(4, activation="sigmoid")(y)
+        y = Dense(self.action_size, activation="linear")(y)
         model_y = Model(inputs=[queue_input],outputs=y)
 
         waiting_time_input = Input(shape=(4), name='wt_input_layer')
         w = Dense(64, activation="relu")(waiting_time_input)
         w = Dense(32, activation="relu")(w)
-        w = Dense(4, activation="sigmoid")(w)
+        w = Dense(self.action_size, activation="linear")(w)
         model_w = Model(inputs=[waiting_time_input],outputs=w)
         
 
         combined = keras.layers.concatenate([model_x.output, model_y.output, model_w.output])
         # combined = keras.layers.concatenate([model_x.output, multiplied])
-        z = Dense(32, activation="relu")(combined)
+        z = Dense(64, activation="relu")(combined)
+        z = Dense(64, activation="relu")(z)
         z = Dense(32, activation="relu")(z)
-        z = Dense(self.action_size, activation="linear")(z)                
+        z = Dense(self.action_size, activation="linear")(z)
 
         model = Model(inputs=[model_x.input, queue_input, waiting_time_input], outputs=z)
         model.compile(optimizer='adam', loss='mse')

@@ -28,7 +28,7 @@ for directory in os.listdir("overtime_data"): #for each simul
     x = np.array(x_points)
     y = np.array(y_points)
     e = np.array(err)
-    plt.plot(x, y, label=desc, marker='^')
+    plt.plot(x, y, label=desc, marker='^')    
 plt.legend(loc='lower right')
 plt.savefig('plots/overtime_twt.png', dpi=300)
 

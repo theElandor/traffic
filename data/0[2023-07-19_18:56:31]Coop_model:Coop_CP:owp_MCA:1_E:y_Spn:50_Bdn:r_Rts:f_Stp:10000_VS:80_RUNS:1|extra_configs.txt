@@ -1,0 +1,1 @@
+simul:False multiplier:1 crossing_cars:4 congestion_rate:False spawn_rate:3 simulation_index:1 

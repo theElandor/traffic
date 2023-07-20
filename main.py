@@ -20,7 +20,7 @@ from src.net import Agent
 def collectOvertimeData(simulation_index, extra_configs):
     for filename in os.listdir("test"):
         file = os.path.join("test", filename)
-        with open(file, "r") as f:        
+        with open(file, "r") as f:
             raw = [x.replace('\n','').split(' ') for x in f.readlines()]
             for el in raw:
                 while '' in el:
@@ -29,15 +29,15 @@ def collectOvertimeData(simulation_index, extra_configs):
             fine_data ={}
             for element in raw:
                 fine_data[element[0]] = float(element[1])
-                
+
         if not os.path.isdir("overtime_data/simul_"+simulation_index):
-            os.makedirs("overtime_data/simul_"+simulation_index)        
+            os.makedirs("overtime_data/simul_"+simulation_index)
         with open("overtime_data/"+"simul_"+simulation_index+"/"+filename+".txt", "w") as f:
             f.write("mean " + str(fine_data["mean"]) + "\n")
             f.write("std " + str(fine_data["std"]) + "\n")
         with open("overtime_data/simul_"+simulation_index+"/name.txt","w") as f:
             f.write(str(extra_configs))
-        
+
 
 def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo", extra_configs=None):
     sumoCmd = [sumoBinary, "-c", "sumo_cfg/project.sumocfg", "--threads", "8"]
@@ -97,18 +97,22 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         elif model_chosen == 'Comp':
             model = Competitive(settings)
         # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes
-        non_players = ['10', '12', '3', '88', '96']
-        
-        manager = Agent(load=False, train=True)
+        manager = None
+        global_testing = False
+        training_model = False
+        standard_run = True
+        manager = Agent(load=True, train=False)
         reward = 0
         train_count = 0
         sample = 0
-        state=None
-        done = False
+        state = None
         collisions = 0
-        total_collisions = 0 
+        total_collisions = 0
         cars_to_depart = []
-        action=None
+        action = None
+
+        global_simulation_steps = 0
+        global_collisions = 0
         
         while True:
             if model_chosen == 'EB' or model_chosen == 'DA':
@@ -118,21 +122,30 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 idle_times = {}
                 traffic = {}
                 for crossroad in crossroads.keys(): #for each crossroad
-                    # log_print('Handling crossroad {}'.format(crossroad))
+
                     dc[crossroad], idle_times[crossroad], traffic[crossroad]= model.intersectionControl(crossroads[crossroad])
-                    #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
+                    # after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
-                        break                
-                train_count, sample, state, collisions, cars_to_depart, action = departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count, sample=sample, prev_state=state, collisions=collisions, cars_to_depart=cars_to_depart, action=action)
-                if manager.train == False:
-                    total_collisions += collisions                
+                        break
+                if global_testing:
+                    simulation_steps, step_collisions = departCarsNN(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,mapping=mapping,cars_to_depart=cars_to_depart)
+                    global_simulation_steps += simulation_steps
+                    global_collisions += step_collisions
+                if training_model:
+                    train_count, sample, state, collisions, cars_to_depart, action = departCarsTrain(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count, sample=sample, prev_state=state, collisions=collisions, cars_to_depart=cars_to_depart, action=action)
+                    if manager.train == False:
+                        total_collisions += collisions
+                if standard_run:
+                    departCarsStandard(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic)
             if not listener.getSimulationStatus():
-                #save manager braine
-                print("Saving brain....")
-                print("Total collisions: " + str(total_collisions))
-                manager.save()
-                # log_print('Simulation finished')
+                if not global_testing:
+                    print("Saving brain....")
+                    print("Total collisions: " + str(total_collisions))
+                    manager.save()
                 print("Simulation finished!")
+                if global_collisions != 0:
+                    accuracy = ((global_simulation_steps-global_collisions)/(global_simulation_steps))*100
+                    print(str(accuracy)+"%")
                 traci.close()
                 break
             
@@ -225,7 +238,7 @@ if __name__ == '__main__':
 
     q = multiprocessing.Queue()
     lock = multiprocessing.Lock()
-    extra_configs = {'simul':True, 'multiplier':2, 'crossing_cars':2, 'congestion_rate':True, 'spawn_rate':3, 'simulation_index':"1"}
+    extra_configs = {'simul':True, 'multiplier':1, 'crossing_cars':2, 'congestion_rate':True, 'spawn_rate':3, 'simulation_index':"3"}
     # DEBUG: uncomment below line when testing with EB
     # extra_configs = {'congestion':True}
     for settings in configs:
