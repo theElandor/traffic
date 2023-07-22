@@ -443,8 +443,7 @@ def spawnCars(cars_to_spawn, settings,routes, offset=0):
 	return
 def departCarsNN(settings, dc, idle_times, listener, in_edges, out_edges,extra_configs,traffic,non_players = [], manager=None, mapping=None,cars_to_depart=0):
 	waiting = {}
-	veicDict = {}
-	mass = {}
+	veicDict = {}	
 	trajectories = {}
 
 	crossing_cars = extra_configs['crossing_cars']
@@ -459,24 +458,24 @@ def departCarsNN(settings, dc, idle_times, listener, in_edges, out_edges,extra_c
 	step_collisions = 0
 	simulation_steps = 0
 	for crossroad in dc.keys():
-			action = manager.act(state[crossroad])
-			departing_cars = mapping[action]
-			print("Action is mapped with: " + str(departing_cars))
-			cars_to_depart = []                
-			for i,lane in enumerate(in_edges[crossroad]): #check on each lane if there is a car waiting that has to depart
-				j = 0
-				while j < len(departing_cars):
-					if i == departing_cars[j]:  # then the car of this lane has to cross, if it exists
-						for car in dc[crossroad]:  # look for the right car
-							if car.getLaneID() == lane+"_0":
-								cars_to_depart.append(car)
-					j+=1
-			step_collisions += detect_collisions(cars_to_depart, trajectories[crossroad])
-			perform_action(cars_to_depart, crossroad, dc, idle_times)  # makes given cars depart from crossing
-			traci.simulationStep()
-			simulation_steps += 1
-			if not listener.getSimulationStatus():
-				break
+		action = manager.act(state[crossroad])
+		departing_cars = mapping[action]
+		print("Action is mapped with: " + str(departing_cars))
+		cars_to_depart = []                
+		for i,lane in enumerate(in_edges[crossroad]): #check on each lane if there is a car waiting that has to depart
+			j = 0
+			while j < len(departing_cars):
+				if i == departing_cars[j]:  # then the car of this lane has to cross, if it exists
+					for car in dc[crossroad]:  # look for the right car
+						if car.getLaneID() == lane+"_0":
+							cars_to_depart.append(car)
+				j+=1
+		step_collisions += detect_collisions(cars_to_depart, trajectories[crossroad])
+		perform_action(cars_to_depart, crossroad, dc, idle_times)  # makes given cars depart from crossing
+		traci.simulationStep()
+		simulation_steps += 1
+		if not listener.getSimulationStatus():
+			break
 	return simulation_steps, step_collisions
 
 
@@ -548,7 +547,8 @@ def departCarsTrain(settings, dc, idle_times, listener, in_edges, out_edges,extr
 	"""
 	multiple_crossing = True
 	batch_size = 64
-	
+	trained_manager = "H"
+
 	waiting = {}
 	veicDict = {}
 	mass = {}
@@ -564,7 +564,7 @@ def departCarsTrain(settings, dc, idle_times, listener, in_edges, out_edges,extr
 		trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)		
 	current_state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
 	for crossroad in dc.keys():
-		if(crossroad == "à"):                
+		if(crossroad == trained_manager):
 			#TRAINING THE NETWORK--------------------
 			if manager.train == True:
 				print("PREV_STATE "+str(prev_state))
@@ -835,12 +835,7 @@ def gather_global_data(trajectories,dc,idle_times,listener,in_edges,out_edges,ex
 		directions_input_formatted = np.array([directions_input])
 		twt_input_formatted = np.array([twt_input])
 		q_input_formatted = np.array([q_input])
-
-		print("NN inputs:")
-		print(directions_input_formatted)
-		print(twt_input_formatted)
-		print(q_input_formatted)
-		# return [[directions_input_formatted],[twt_input_formatted],[q_input_formatted]]
+	
 		try:
 			state[test_crossing].append([[directions_input_formatted],[q_input_formatted],[twt_input_formatted]])
 		except KeyError:
@@ -849,77 +844,77 @@ def gather_global_data(trajectories,dc,idle_times,listener,in_edges,out_edges,ex
 	return state
 
 def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = []):
-    separator = "----------\n"
-    """
-    return: average waiting time for each lane
-    return: queue length for each lane
-    return: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] --> bitvector representing directions
-    """
-    test_crossing = "F"
-    twt_input = []
-    mean_wt = {}
-    directions_input = []
-    q_input = []
-    q_dict = {}
-    # compute mean traffic waiting time for each lane, and create a list for the nn    
-    for road in in_edges[test_crossing]:
-        mean_wt[road] = 0
-        q_dict[road] = 0
-        if traffic[test_crossing]: # otherwise empty list and throw an error
-            q_dict[road] = len(traffic[test_crossing][road])
-            for car in traffic[test_crossing][road]:
-                mean_wt[road] += car.traffic_waiting_time
-            # need to add also waiting time of car waiting at the front of the crossing
-        front = 0
-        for front_car in dc[test_crossing]:
-            if front_car.getLaneID() == road:
-                mean_wt[road] += front_car.traffic_waiting_time
-                front = 1
-        q_dict[road] += front
+	separator = "----------\n"
+	"""
+	return: average waiting time for each lane
+	return: queue length for each lane
+	return: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] --> bitvector representing directions
+	"""
+	test_crossing = "H"
+	twt_input = []
+	mean_wt = {}
+	directions_input = []
+	q_input = []
+	q_dict = {}
+	# compute mean traffic waiting time for each lane, and create a list for the nn    
+	for road in in_edges[test_crossing]:
+		mean_wt[road] = 0
+		q_dict[road] = 0
+		if traffic[test_crossing]: # otherwise empty list and throw an error
+			q_dict[road] = len(traffic[test_crossing][road])
+			for car in traffic[test_crossing][road]:
+				mean_wt[road] += car.traffic_waiting_time
+			# need to add also waiting time of car waiting at the front of the crossing
+		front = 0
+		for front_car in dc[test_crossing]:
+			if front_car.getLaneID() == road:
+				mean_wt[road] += front_car.traffic_waiting_time
+				front = 1
+		q_dict[road] += front
 
-        if mean_wt[road] != 0: #MEAN IS NOW JUST THE SUM
-            pass
-            # mean_wt[road] = mean_wt[road]/(len(traffic[test_crossing][road])+front)
-            
-    #transform dict into list of floats    
-    for road in in_edges[test_crossing]:
-        twt_input.append(mean_wt[road])
-        q_input.append(q_dict[road])
-    #normalize values between 0 and 1
-    for i in range(0,4):
-        twt_input[i] = twt_input[i]/(sum(twt_input)+1)
-        q_input[i] = q_input[i]/(sum(q_input)+1)
+		if mean_wt[road] != 0: #MEAN IS NOW JUST THE SUM
+			pass
+			# mean_wt[road] = mean_wt[road]/(len(traffic[test_crossing][road])+front)
+			
+	#transform dict into list of floats    
+	for road in in_edges[test_crossing]:
+		twt_input.append(mean_wt[road])
+		q_input.append(q_dict[road])
+	#normalize values between 0 and 1
+	for i in range(0,4):
+		twt_input[i] = twt_input[i]/(sum(twt_input)+1)
+		q_input[i] = q_input[i]/(sum(q_input)+1)
 
-    # 0 1 0 0
-    # E N O S
-    mapping = {out_edges[test_crossing][0]:1, #E
-               out_edges[test_crossing][1]:2, #N
-               out_edges[test_crossing][2]:3, #O
-               out_edges[test_crossing][3]:4, #S
-               }
-    for road in in_edges[test_crossing]: #iterate on ordered roads
-        # front_car_direction = [0 for x in range(4)] #init list with zeros
-        front_car_direction = 0
-        for car in dc[test_crossing]:
-            # print("Debug: " + car.getLaneID() + " "+road)
-            if car.getLaneID() == road+"_0": #car is the front of current road
-                index = car.getRouteIndex()
-                current_direction = car.getRoute()[index+1]
-                # front_car_direction[mapping[current_direction]] = 1
-                front_car_direction = mapping[current_direction]
-        # directions_input.extend(front_car_direction)
-        directions_input.append(front_car_direction)
-        
-    directions_input_formatted = np.array([directions_input])
-    twt_input_formatted = np.array([twt_input])
-    q_input_formatted = np.array([q_input])
+	# 0 1 0 0
+	# E N O S
+	mapping = {out_edges[test_crossing][0]:1, #E
+			   out_edges[test_crossing][1]:2, #N
+			   out_edges[test_crossing][2]:3, #O
+			   out_edges[test_crossing][3]:4, #S
+			   }
+	for road in in_edges[test_crossing]: #iterate on ordered roads
+		# front_car_direction = [0 for x in range(4)] #init list with zeros
+		front_car_direction = 0
+		for car in dc[test_crossing]:
+			# print("Debug: " + car.getLaneID() + " "+road)
+			if car.getLaneID() == road+"_0": #car is the front of current road
+				index = car.getRouteIndex()
+				current_direction = car.getRoute()[index+1]
+				# front_car_direction[mapping[current_direction]] = 1
+				front_car_direction = mapping[current_direction]
+		# directions_input.extend(front_car_direction)
+		directions_input.append(front_car_direction)
+		
+	directions_input_formatted = np.array([directions_input])
+	twt_input_formatted = np.array([twt_input])
+	q_input_formatted = np.array([q_input])
 
-    print("NN inputs:")
-    print(directions_input_formatted)
-    print(twt_input_formatted)     
-    print(q_input_formatted)            
-    # return [[directions_input_formatted],[twt_input_formatted],[q_input_formatted]]
-    return [[directions_input_formatted],[q_input_formatted],[twt_input_formatted]]
+	# print("NN inputs:")
+	# print(directions_input_formatted)
+	# print(twt_input_formatted)     
+	# print(q_input_formatted)
+	# return [[directions_input_formatted],[twt_input_formatted],[q_input_formatted]]
+	return [[directions_input_formatted],[q_input_formatted],[twt_input_formatted]]
 
 def detect_collisions(cars_to_depart, trajectories):
 	"""
@@ -956,25 +951,21 @@ def get_reward(state1, state2, collisions, cars_to_depart):
 	x = waiting times
 	y = queues
 	collisions: integer
-
-
-	standard deviation of q lenghts and throughput?
 	"""
 	if not state1:
 		return -1
 
 	q_len2 = state2[1][0][0]
-	waiting_times2 = state2[2][0][0]
-	max_value2 = waiting_times2[max_index]
+	waiting_times2 = state2[2][0][0]	
 
 	tr_tot = 2*len(cars_to_depart)  # numero di auto che partono dall'incrocio nello stato attuale
-	collisions = collisions * 5
-	qmax_reward = (np.max(q_len2)/(np.sum(q_len2)+1))*4
-	wt_reward = (max_value2/np.sum(waiting_times2)+1)*4
+	collisions = collisions * 4
+	qmax_reward = (np.max(q_len2)/(np.sum(q_len2)+1))*5
+	wt_reward = (np.max(waiting_times2)/np.sum(waiting_times2)+1)*5
 
 	print("Debuggin waiting time: ")
 	reward = tr_tot - qmax_reward - wt_reward - collisions
-	print("Reward: thr=" +str(tr_tot)+" cll:"+str(-collisions)+" qlen:"+str(qmax_reward) +" wt: " +str(-wt_reward) + " tot:"+str(reward))
+	print("Reward: thr=" + str(tr_tot)+" cll:" + str(-collisions) + " qlen:" + str(qmax_reward) + " wt: " + str(-wt_reward) + " tot:"+str(reward))
 	return reward
 
 def perform_action(cars_to_depart, crossroad, dc, idle_times):

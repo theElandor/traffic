@@ -64,22 +64,101 @@ un complesso meccanismo economico basato sulle aste fosse realmente necessario p
 la /fairness/ dell'incrocio.
 \newpage
 * Algoritmo
+** Stato dell'arte
+La maggior parte della letteratura si pone in uno scenario in cui 
+le strade sono popolate totalmente da veicoli a guida autonoma,
+in grado di comunicare tra di loro (/Vehicle to Vehicle comunication/, o V2V)
+e con dispositivi installati in prossimità degli incroci
+(/Vehicle to Infrastructure comunication/ o V2I).
+Nonostante i progressi, si è ancora ben lontani dal vedere solo veicoli
+autonomi dominare le nostre strade. Il cambiamento dell'attuale paradigma
+di guida avverrà nel corso di molti anni, periodo in cui si dovranno gestire
+sia veicoli autonomi che veicoli non attrezzati (massimo di livello 2).
+
+I metodi di valutazione principali usati in letteratura per confrontare
+l'efficacia di diversi algoritmi sono i seguenti:
++ tempo di attesa nel traffico, o /waiting time/: rappresenta il tempo
+  in cui il veicolo è costretto ad aspettare in coda;
++ tempo di attesa all'incrocio, o /crossroad waiting time/: è il tempo
+  speso dal veicolo in prossimità dell'incrocio, aspettando il suo turno
+  di attraversamento;
++ bilanciamento del metodo, o /fairness/: si riferisce al principio 
+  di gestire tutti i veicoli nel modo più equo possibile, in base
+  alle esigenze di ognuno.
+
+Secondo gli esperimenti riportati in [paper g] la variante dell'algoritmo
+/Auction Based/ (AB) più performante in termini di tempi di attesa nel traffico
+e di bilanciamento  ( /fairness/ ) è quella cooperativa, che prevede l'attraversamento
+dell'incrocio di tutti i veicoli che hanno partecipato all'asta. In particolare
+ogni veicolo effettua una puntata prelevando "denaro" (una generica valuta) 
+dal suo portafoglio virtuale, inviandola al manager dell'incrocio. Quest'ultimo
+raccoglie tutte le puntate dei veicoli partecipanti, per poi determinare
+l'ordine di attraversamento partendo dall'autore della puntata più alta, ossia il vincitore dell'asta.
+Secondo il modello competitivo è soltanto il vincitore ad attraversare
+l'incrocio: gli altri parteciperanno all'asta successiva.
+Sono stati proposti diversi metodi per gestire il pagamento finale: secondo
+quello che si è rivelato essere più equilibrato è soltanto il vincitore a pagare
+la puntata (/only winner pays/).
+In [pg] l'/ehnancement/ viene applicato per permettere anche alle auto
+che aspettano in coda di partecipare indirettamente all'asta: per ogni auto
+che aspetta in coda dietro all'attuale veicolo che sta partecipando viene aggiunto
+un piccolo contributo positivo alla puntata di quest'ultimo, secondo la formula (1).
+Nonostante questa modifica migliori nel complesso i tempi di attesa e la /fairness/, 
+permane il problema che il sistema di aste determina soltanto l'ordine di attraversamento dei veicoli,
+senza considerare le situazioni di congestione del traffico.
+Tramite la variante proposta in questa tesi vengono migliorati /(i)/ la /fairness/ nel complesso,
+/(ii)/ il tempo medio di attesa nel traffico e /(iii)/ il tempo di attesa
+all'incrocio.
+
+
+
+# \begin{algorithm}
+# \caption{Algoritmo ad asta ibrida}\label{alg:cap}
+# \begin{algorithmic}
+# \Require $n \geq 0$
+# \Ensure $y = x^n$
+# \State $y \gets 1$
+# \State $X \gets x$
+# \State $N \gets n$
+# \While{$N \neq 0$}
+# \If{$N$ is even}
+#     \State $X \gets X \times X$
+#     \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
+# \ElsIf{$N$ is odd}
+#     \State $y \gets y \times X$
+#     \State $N \gets N - 1$
+# \EndIf
+# \EndWhile
+# \end{algorithmic}
+# \end{algorithm}
+** Algoritmo ibrido
+La variante proposta prende il nome di algoritmo di coordinamento
+ibrido, ispirandosi sia al modello cooperativo che 
+dal competitivo.
 \begin{algorithm}
-\caption{Algoritmo ad asta ibrida}\label{alg:cap}
+\caption{Hybrid manager}\label{alg:cap}
 \begin{algorithmic}
-\Require $n \geq 0$
-\Ensure $y = x^n$
-\State $y \gets 1$
-\State $X \gets x$
-\State $N \gets n$
-\While{$N \neq 0$}
-\If{$N$ is even}
-    \State $X \gets X \times X$
-    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
-\ElsIf{$N$ is odd}
-    \State $y \gets y \times X$
-    \State $N \gets N - 1$
-\EndIf
-\EndWhile
+\State $C$ = veicoli partecipanti all'asta
+\State $W$ = lista ordinata di veicoli vincitori dell'asta
+\State $\gamma$ = lunghezza massima della lista $W$
+\For{$v$ in $W$}
+\State $F$ = [v]
+  \For{$f$ in $C$}
+    \For{$c$ in $F$}
+      \If{$f$.direction !intersect with $c$.direction}
+        \State $F$.append(f)
+      \EndIf
+    \EndFor
+  \EndFor
+\State F.depart()
+\EndFor
 \end{algorithmic}
 \end{algorithm}
+
+Secondo gli esperimenti, il valore ottimale del parametro $\gamma$
+è $2$. Ciò significa che di tutti i veicoli che hanno partecipato all'asta
+soltanto due di questi attraverseranno sicuramente l'incrocio, dando però
+la possibilità ad altri veicoli con traiettorie che non collidono di attraversare
+l'incrocio nello stesso momento. In questo modo si cerca di massimizzare il /throughput/
+dell'incrocio ad ogni asta, mantenendo comunque un alto livello di sicurezza rispetto
+alle collisioni.

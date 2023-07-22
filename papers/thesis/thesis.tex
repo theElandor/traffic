@@ -1,4 +1,4 @@
-% Created 2023-07-16 dom 10:38
+% Created 2023-07-21 ven 18:52
 % Intended LaTeX compiler: pdflatex
 \documentclass[letterpaper, 12pt]{article}
                       \usepackage{lmodern} % Ensures we have the right font
@@ -19,7 +19,7 @@
 \usepackage{subfig} % Subfigures (not needed in Org I think)
 \usepackage{hyperref} % Links
 \usepackage{listings} % Code highlighting
-\usepackage[top=1in, bottom=1.25in, left=1in, right=1in]{geometry}
+\usepackage[top=1.25in, bottom=1.25in, left=1.25in, right=1.25in]{geometry}
 \renewcommand{\baselinestretch}{1.3}
 \usepackage[explicit]{titlesec}
 \pretitle{\begin{center}\fontsize{20pt}{20pt}\selectfont}
@@ -55,7 +55,7 @@
 
 \newpage
 \section{Introduzione}
-\label{sec:orgc7851ce}
+\label{sec:org09ff837}
 La guida autonoma nei prossimi anni diventerà progressivamente parte
 integrante della nostra vita, sostituendo una delle attività umane 
 tra le più stressanti e pericolose. 
@@ -64,7 +64,7 @@ stradali che hanno provocato circa 3000 morti e 200 mila feriti.
 Il ruolo principale della tecnologia è quello di creare soluzioni che mettano
 l'esperienza dell'uomo al centro, cercando di facilitare, migliorare e rendere 
 più sicure le attività quotidiane.
-A tal proposito la ricerca sui veicoli autonomi si è evoluta molto rapidamente negli ultimi anni,
+A tal proposito la ricerca si è evoluta molto rapidamente negli ultimi anni,
 proponendosi di trasformare radicalmente il modo in cui guidiamo.
 La Society of Automotive Engineers (SAE) descrive il coinvolgimento umano alla guida tramite
 una classifica basata su 5 livelli:
@@ -98,8 +98,11 @@ soltanto in certe aree geografiche.
 Automazione completa: il veicolo è autonomo in qualsiasi condizione, e non è necessaria
 la presenza di un passeggero a bordo.
 \end{itemize}
+
+La guida in strada è un argomento 
+
 \subsection{Contributo di questa tesi}
-\label{sec:orgb47c539}
+\label{sec:org351bbf2}
 Questa tesi vuole esplorare ulteriori possibilità offerte dagli algoritmi
 di coordinamento di veicoli autonomi agli incroci basati sulle aste.
 In particolare, vengono proposte alcune estensioni dell'algoritmo
@@ -115,24 +118,85 @@ un complesso meccanismo economico basato sulle aste fosse realmente necessario p
 la \emph{fairness} dell'incrocio.
 \newpage
 \section{Algoritmo}
-\label{sec:org4f8c7a3}
+\label{sec:org11a2627}
+\subsection{Stato dell'arte}
+\label{sec:orgb57adcf}
+La maggior parte della letteratura si pone in uno scenario in cui 
+le strade sono popolate totalmente da veicoli a guida autonoma,
+in grado di comunicare tra di loro (\emph{Vehicle to Vehicle comunication}, o V2V)
+e con dispositivi installati in prossimità degli incroci
+(\emph{Vehicle to Infrastructure comunication} o V2I).
+Nonostante i progressi, si è ancora ben lontani dal vedere solo veicoli
+autonomi dominare le nostre strade. Il cambiamento dell'attuale paradigma
+di guida avverrà nel corso di molti anni, periodo in cui si dovranno gestire
+sia veicoli autonomi che veicoli non attrezzati (massimo di livello 2).
+
+I metodi di valutazione principali usati in letteratura per confrontare
+l'efficacia di diversi algoritmi sono i seguenti:
+\begin{itemize}
+\item tempo di attesa nel traffico, o \emph{waiting time}: rappresenta il tempo
+in cui il veicolo è costretto ad aspettare in coda;
+\item tempo di attesa all'incrocio, o \emph{crossroad waiting time}: è il tempo
+speso dal veicolo in prossimità dell'incrocio, aspettando il suo turno
+di attraversamento;
+\item bilanciamento del metodo, o \emph{fairness}: si riferisce al principio 
+di gestire tutti i veicoli nel modo più equo possibile, in base
+alle esigenze di ognuno.
+\end{itemize}
+
+Secondo gli esperimenti riportati in [paper g] la variante dell'algoritmo
+\emph{Auction Based} (AB) più performante in termini di tempi di attesa nel traffico
+e di bilanciamento  ( \emph{fairness} ) è quella cooperativa, che prevede l'attraversamento
+dell'incrocio di tutti i veicoli che hanno partecipato all'asta. In particolare
+ogni veicolo effettua una puntata prelevando "denaro" (una generica valuta) 
+dal suo portafoglio virtuale, inviandola al manager dell'incrocio. Quest'ultimo
+raccoglie tutte le puntate dei veicoli partecipanti, per poi determinare
+l'ordine di attraversamento partendo dall'autore della puntata più alta, ossia il vincitore dell'asta.
+Secondo il modello competitivo è soltanto il vincitore ad attraversare
+l'incrocio: gli altri parteciperanno all'asta successiva.
+Sono stati proposti diversi metodi per gestire il pagamento finale: secondo
+quello che si è rivelato essere più equilibrato è soltanto il vincitore a pagare
+la puntata (\emph{only winner pays}).
+In [pg] l'\emph{ehnancement} viene applicato per permettere anche alle auto
+che aspettano in coda di partecipare indirettamente all'asta: per ogni auto
+che aspetta in coda dietro all'attuale veicolo che sta partecipando viene aggiunto
+un piccolo contributo positivo alla puntata di quest'ultimo, secondo la formula (1).
+Nonostante questa modifica migliori nel complesso i tempi di attesa e la \emph{fairness}, 
+permane il problema che il sistema di aste determina soltanto l'ordine di attraversamento dei veicoli,
+senza considerare le situazioni di congestione del traffico.
+Tramite la variante proposta in questa tesi vengono migliorati \emph{(i)} la \emph{fairness} nel complesso,
+\emph{(ii)} il tempo medio di attesa nel traffico e \emph{(iii)} il tempo di attesa
+all'incrocio.
+\subsection{Algoritmo ibrido}
+\label{sec:orga78bac9}
+La variante proposta prende il nome di algoritmo di coordinamento
+ibrido, ispirandosi sia al modello cooperativo che 
+dal competitivo.
 \begin{algorithm}
-\caption{Algoritmo ad asta ibrida}\label{alg:cap}
+\caption{Hybrid manager}\label{alg:cap}
 \begin{algorithmic}
-\Require $n \geq 0$
-\Ensure $y = x^n$
-\State $y \gets 1$
-\State $X \gets x$
-\State $N \gets n$
-\While{$N \neq 0$}
-\If{$N$ is even}
-    \State $X \gets X \times X$
-    \State $N \gets \frac{N}{2}$  \Comment{This is a comment}
-\ElsIf{$N$ is odd}
-    \State $y \gets y \times X$
-    \State $N \gets N - 1$
-\EndIf
-\EndWhile
+\State $C$ = veicoli partecipanti all'asta
+\State $W$ = lista ordinata di veicoli vincitori dell'asta
+\State $\gamma$ = lunghezza massima della lista $W$
+\For{$v$ in $W$}
+\State $F$ = [v]
+  \For{$f$ in $C$}
+    \For{$c$ in $F$}
+      \If{$f$.direction !intersect with $c$.direction}
+        \State $F$.append(f)
+      \EndIf
+    \EndFor
+  \EndFor
+\State F.depart()
+\EndFor
 \end{algorithmic}
 \end{algorithm}
+
+Secondo gli esperimenti, il valore ottimale del parametro \(\gamma\)
+è \(2\). Ciò significa che di tutti i veicoli che hanno partecipato all'asta
+soltanto due di questi attraverseranno sicuramente l'incrocio, dando però
+la possibilità ad altri veicoli con traiettorie che non collidono di attraversare
+l'incrocio nello stesso momento. In questo modo si cerca di massimizzare il \emph{throughput}
+dell'incrocio ad ogni asta, mantenendo comunque un alto livello di sicurezza rispetto
+alle collisioni.
 \end{document}
