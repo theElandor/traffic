@@ -61,20 +61,16 @@ class IntersectionManager:
         traffic_stop_list = defaultdict(list) #defaultdict is a dict that never raises a KeyError for keys that are not in the dict itself.
         for v in VehiclesDict.vd.values(): #for each veichle
             road = traci.vehicle.getRoadID(v.getID()) #gets the road
-            if traci.vehicle.isStopped(v.getID()) and road in crossroad.getInEdges(): ## -->
-                #if veichle is stopped, and it is in a road that is a InEdge for current crossing
-                #basically it translates in "if veichle is waiting at the current crossing"
-                log_print('collectWaitingVehicles: vehicle {} (on road {}) is added to {} crossroad stop list'.format(v.getID(), road, crossroad.getName()))
+            if traci.vehicle.isStopped(v.getID()) and road in crossroad.getInEdges():
                 crossroad_stop_list.append(v)
             # if vehicles is stationary (NOT stopped) and near the considered crossroad, it is considered "in traffic"
-            elif traci.vehicle.getSpeed(v.getID()) < traci.vehicle.getAllowedSpeed(v.getID()) and traci.vehicle.getRoadID(v.getID()) in crossroad.getInEdges():
-                log_print('collectWaitingVehicles: vehicle {} added to traffic stop list'.format(v.getID()))
-                traffic_stop_list[v.getRoadID()].append(v)
-                log_print('collectWaitingVehicles: vehicle {} invocation of \'setTrafficWaitingTime\''.format(v.getID()))
-                v.setTrafficWaitingTime()
-            #probably veichles that are waiting in line behind stopped veichle at the head of the line, are not
-            #considered stopped even if they are not moving.
+            elif traci.vehicle.getSpeed(v.getID()) < traci.vehicle.getAllowedSpeed(v.getID()) and traci.vehicle.getRoadID(v.getID()) in crossroad.getInEdges():                
+                traffic_stop_list[v.getRoadID()].append(v)                
+                v.setTrafficWaitingTime()            
         assert (len(crossroad_stop_list) <= 4)
+        for key in traffic_stop_list:
+            print(traffic_stop_list[key])
+            traffic_stop_list[key] = sorted(traffic_stop_list[key], key=lambda item : traci.vehicle.getPosition(item.getID()))
         return crossroad_stop_list, traffic_stop_list
     
     def sortBids(self, bids):            
@@ -88,6 +84,10 @@ class IntersectionManager:
         return bids, winner, winner_total_bid, winner_bid, winner_enhance
 
     def bidPayment(self, bids, winner_bid):
+        """
+        Redistributes winner money to auction partecipants, also
+        in cooperative approach.
+        """
         for i in range(1, len(bids)):
             #re-distributes winner's bid to other veichles
             bids[i][0].setBudget(bids[i][0].getBudget() + round(winner_bid / (len(bids) - 1)))

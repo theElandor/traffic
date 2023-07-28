@@ -1,7 +1,7 @@
 from src.intersectionManager import *
 import math
 
-
+#basically the same as cooperative, but sponsorship is implemented.
 class Competitive(IntersectionManager):
 
     def bidSystem(self, crossroad_stop_list, traffic_stop_list):
@@ -18,7 +18,7 @@ class Competitive(IntersectionManager):
             if self.settings['Spn'] > 0:
                 for sp in traffic_stop_list[car.getRoadID()]:
                     tip = sp.makeSponsor()
-                    log_print('bidSystem: vehicle {} receives a sponsorship of {} from vehicle {}'.format(car.getID(), tip, sp.getID()))
+                    print('bidSystem: vehicle {} receives a sponsorship of {} from vehicle {}'.format(car.getID(), tip, sp.getID()))
                     sponsorship += tip
                     sp.setBudget(sp.getBudget() - tip)
 

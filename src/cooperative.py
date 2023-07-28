@@ -19,6 +19,20 @@ class Cooperative(IntersectionManager):
         # crossroad_stop_list --> lista di veicoli fermi all'incrocio, in testa alle linee
         for car in crossroad_stop_list:
             car_bid = int(car.makeBid() + 1)
+            sponsorship = 0
+
+            # Collecting sponsorships
+            if self.settings['Spn'] > 0:
+                print("Cars in " + car.getRoadID())                
+                for sp in traffic_stop_list[car.getRoadID()]:
+                    print(sp)
+                    tip = sp.makeSponsor()
+                    print('bidSystem: vehicle {} receives a sponsorship of {} from vehicle {}'.format(car.getID(), tip, sp.getID()))
+                    sponsorship += tip
+                    sp.setBudget(sp.getBudget() - tip)                    
+            car_bid += sponsorship
+
+            
             log_print('bidSystem: vehicle {} made a bid of {}'.format(car.getID(), car_bid))
             if self.settings['E'] == 'y': ## if enhancement is activated
                 enhance = self.multiplier*math.log(len(traffic_stop_list[car.getRoadID()]) + 1) + 1 ## get num of cars in the same lane and apply formula.
