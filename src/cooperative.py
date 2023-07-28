@@ -67,6 +67,8 @@ class Cooperative(IntersectionManager):
             else:
                 corr_en = enhance
             total_bid = int(car_bid * corr_en)
+            # if car.getID() == "10":
+            #     total_bid = 500
             bids.append([car, total_bid, car_bid, corr_en])
             
             log_print('bidSystem: vehicle {} has a total bid of {} (bid {}, enhancement {})'.format(car.getID(), total_bid, car_bid, enhance))
@@ -74,7 +76,10 @@ class Cooperative(IntersectionManager):
         bids, winner, winner_total_bid, winner_bid, winner_enhance = self.sortBids(bids)
 
         log_print('bidSystem: vehicle {} pays {}'.format(winner.getID(), winner_bid - 1))
-        winner.setBudget(winner.getBudget() - winner_bid + 1)
+        #if winner is test vehicle, do not decrease budget and do not redistribute winning bid
+        #to other vehicles
+        # if winner.getID() != 10:
+        winner.setBudget(winner.getBudget() - winner_bid + 1)        
         self.bidPayment(bids, winner_bid)
 
         departing = []
