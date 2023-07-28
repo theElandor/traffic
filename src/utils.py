@@ -21,8 +21,6 @@ from src.utility_print import *
 from src.vehiclesDict import VehiclesDict
 from src.CrossGraph import Graph
 
-from src.net import Agent
-
 pt = PrettyTable()
 log_file = ""
 l = ""
@@ -441,7 +439,7 @@ def spawnCars(cars_to_spawn, settings,routes, offset=0):
         # Vehicles created are automatically added to VehiclesDict
     return 
 
-def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_configs,traffic,non_players = [], manager=None, reward=0, mapping=None, train_count=0):
+def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_configs,traffic,non_players = []):
     """
     Depart specified cars from respective crossroads, handling Traffic Waiting Time and Crossroad Waiting Time
     :param settings: dictionary containing configuration of current simulation
@@ -450,14 +448,12 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
     :param listener: 'StepListener' used to check simulation status (step limit is respected)
     :return:
     """
-
-    multiple_crossing = True
-    batch_size = 32
+    print("--------------DEPART CARS FUNCTION------------------")
     log_print('departCars: start departing')    
     waiting = {}
-    veicDict = {}
-    mass = {}
+    veicDict = {}    
     crossing_cars = extra_configs['crossing_cars']
+    crossing_rate = extra_configs['crossing_rate']
     for crossroad in dc.keys():
         waiting[crossroad]=[]
         for veic in dc[crossroad]:
@@ -467,95 +463,58 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
     if extra_configs['simul']:
         for crossroad in dc.keys():
             trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)
-        counter = 0
-        state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
-    for crossroad in dc.keys():
-        if(crossroad == "F"):
-            # 1) call act method do select action
-            action = manager.act(state) #returns a integer corrisponding to action
-            # action is a list of ordered integers representing the lanes of the cars that have to cross [0,2,1]
-            departing_cars = mapping[action]
-            cars_to_depart = []        
-            # for c in dc["F"]:
-            #     print(c.getID())
-            for i,lane in enumerate(in_edges["F"]): #check on each lane if there is a car waiting that has to depart
-                j = 0
-                while j < len(departing_cars):
-                    if i == departing_cars[j]: #then the car of this lane has to cross, if it exists
-                        for car in dc["F"]: ##look for the right car
-                            if car.getLaneID() == lane+"_0":
-                                cars_to_depart.append(car)
-                    j+=1
-            collisions = detect_collisions(cars_to_depart, trajectories["F"])
-            #perform action
-            for car in cars_to_depart:
-                traci.vehicle.resume(car.getID())
-                car.resetCrossroadWaitingTime()
-            next_state = gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = [])
-            reward = get_reward(state, next_state, collisions)
-            # print("reward: ")
-            # print(reward)
-            action = action
-            done = False
-            manager.remember(state, action, reward, next_state, done)            
-            # if terminated:
-            #     agent.alighn_target_model()
-            #     break
-            if len(manager.experience_replay) > batch_size:
-                train_count+=1
-                print("Training....")
-                manager.retrain(batch_size)
-                # manager.experience_replay.clear()
-                if train_count > 100:
-                    train_count = 0
-                    manager.alighn_target_model()
-            print(reward)
-        else:         
-            for i in range(crossing_cars):        
-                if i < len(dc[crossroad]) and dc[crossroad][i].getID() in waiting[crossroad]: # and i < mass[crossroad]
-                    waiting[crossroad].remove(dc[crossroad][i].getID()) # remove departed veichle from waiting list.
-                    #make other cars with non intercepting trajectoried depart
-                    #followers contains also contains the current veichle departing
-                    followers = []
-                    current = dc[crossroad][i].getID() # ID of current veichle departing from crossing
-                    index = dc[crossroad][i].getRouteIndex()
-                    current_start = dc[crossroad][i].getRoute()[index]
-                    current_direction = dc[crossroad][i].getRoute()[index+1]
-                    if extra_configs['simul']:
-                        starting_node = trajectories[crossroad][current_start]
-                    followers.append(current)
-                    if current not in non_players and extra_configs['simul']: #if it is a aut. driven veic, then we can look for more aut.veics that can cross together
-                        for candidate in waiting[crossroad]: #for each other waiting veichle                    
-                            iterator = starting_node
-                            if candidate not in non_players:
-                                while True: #need to emulate do-while loop                            
-                                    if [v for v in followers if v in [g.getID() for g in iterator.occ]] and candidate in [g.getID() for g in iterator.occ]:
+    for i in range(crossing_cars):
+        to_resume = []
+        for crossroad in dc.keys():
+            if i < len(dc[crossroad]) and dc[crossroad][i].getID() in waiting[crossroad]: # and i < mass[crossroad]
+                waiting[crossroad].remove(dc[crossroad][i].getID()) # remove departed veichle from waiting list.
+                #make other cars with non intercepting trajectoried depart
+                #followers contains also contains the current veichle departing
+                followers = []
+                current = dc[crossroad][i].getID() # ID of current veichle departing from crossing
+                index = dc[crossroad][i].getRouteIndex()
+                current_start = dc[crossroad][i].getRoute()[index]
+                current_direction = dc[crossroad][i].getRoute()[index+1]
+                if extra_configs['simul']:
+                    starting_node = trajectories[crossroad][current_start]
+                followers.append(current)
+                if current not in non_players and extra_configs['simul']: #if it is a aut. driven veic, then we can look for more aut.veics that can cross together
+                    for candidate in waiting[crossroad]: #for each other waiting veichle                    
+                        iterator = starting_node
+                        if candidate not in non_players:
+                            while True: #need to emulate do-while loop                            
+                                if [v for v in followers if v in [g.getID() for g in iterator.occ]] and candidate in [g.getID() for g in iterator.occ]:
+                                    break
+                                else:
+                                    iterator = iterator.next
+                                    if iterator == starting_node:
+                                        followers.append(candidate)                                        
                                         break
-                                    else:
-                                        iterator = iterator.next
-                                        if iterator == starting_node:
-                                            followers.append(candidate)                                        
-                                            break
-                    traci.vehicle.resume(current)
-                    # MULTIPLE SIMULTANEOUS CROSSING
-                    # getLanePosition for sorting to get a ordered list
-                    #iterate on veichles that are waiting directly behind current with same direction                
-                    #and make them depart at the same time.
-                    log_print('departCars: vehicle {} is departing from crossroad {}'.format(current, crossroad))
-                    log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(current, dc[crossroad][i].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
-                    dc[crossroad][i].resetCrossroadWaitingTime()
-                    log_print('departCars: vehicle {} invocation of \'resetCrossroadWaitingTime\''.format(current))
-                    for j in range(1, len(followers)):
-                        traci.vehicle.resume(followers[j])
-                        log_print('departCars: vehicle {} is departing from crossroad {}'.format(followers[j], crossroad))
-                        log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(followers[j], veicDict[followers[j]].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
-                        waiting[crossroad].remove(followers[j])
-                        veicDict[followers[j]].resetCrossroadWaitingTime()
-                        #we should reset the crossroad w.t of every car that leaves the crossing
-                        log_print('departCars: vehicle {} invocation of \'resetCrossroadWaitingTime\''.format(followers[j]))
-                traci.simulationStep()
-        if not listener.getSimulationStatus():
-            break
+                to_resume.append(current)
+                # traci.vehicle.resume(current)
+                print("Departing " + current + "from crossroad " + crossroad)
+                # MULTIPLE SIMULTANEOUS CROSSING
+                # getLanePosition for sorting to get a ordered list
+                #iterate on veichles that are waiting directly behind current with same direction                
+                #and make them depart at the same time.
+                log_print('departCars: vehicle {} is departing from crossroad {}'.format(current, crossroad))
+                log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(current, dc[crossroad][i].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
+                dc[crossroad][i].resetCrossroadWaitingTime()
+                log_print('departCars: vehicle {} invocation of \'resetCrossroadWaitingTime\''.format(current))
+                for j in range(1, len(followers)):                    
+                    traci.vehicle.resume(followers[j])
+                    print("Departing follower " + followers[j] + "from crossroad " + crossroad)                    
+                    log_print('departCars: vehicle {} is departing from crossroad {}'.format(followers[j], crossroad))
+                    log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(followers[j], veicDict[followers[j]].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
+                    waiting[crossroad].remove(followers[j])
+                    veicDict[followers[j]].resetCrossroadWaitingTime()
+                    #we should reset the crossroad w.t of every car that leaves the crossing
+                    log_print('departCars: vehicle {} invocation of \'resetCrossroadWaitingTime\''.format(followers[j]))
+        for resume_car in to_resume:
+            traci.vehicle.resume(resume_car)
+        for i in range(crossing_rate): # simulation steps
+            traci.simulationStep()
+    print("--------------------------------")
 
 
 def collectWT(crossroads_names):
@@ -681,124 +640,3 @@ def generateGraph():
     ["I","F"],
     ])
     return g
-
-
-def gather_data(trajectories,dc,idle_times,listener,in_edges,out_edges,extra_configs,traffic,non_players = []):
-    separator = "----------\n"
-    """
-    return: average waiting time for each lane
-    return: queue length for each lane
-    return: [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1] --> bitvector representing directions
-    """
-    test_crossing = "F"
-
-    # print(separator)
-    # print("cars waiting at crossroad")
-    # for car in dc[test_crossing]:
-    #     print(car.getID())
-    # print(separator)
-    
-    twt_input = []
-    mean_wt = {}
-    directions_input = []
-    
-    q_input = []
-    q_dict = {}
-    # compute mean traffic waiting time for each lane, and create a list for the nn    
-    for road in in_edges[test_crossing]:
-        mean_wt[road] = 0
-        q_dict[road] = 0
-        if traffic[test_crossing]: # otherwise empty list and throw an error
-            q_dict[road] = len(traffic[test_crossing][road])
-            for car in traffic[test_crossing][road]:
-                mean_wt[road] += car.traffic_waiting_time
-            # need to add also waiting time of car waiting at the front of the crossing
-        front = 0
-        for front_car in dc[test_crossing]:
-            if front_car.getLaneID() == road:
-                mean_wt[road] += front_car.traffic_waiting_time
-                front = 1
-        q_dict[road] += front
-
-        if mean_wt[road] != 0:
-            mean_wt[road] = mean_wt[road]/(len(traffic[test_crossing][road])+front)
-    #transform dict into list of floats    
-    for road in in_edges[test_crossing]:
-        twt_input.append(mean_wt[road])
-        q_input.append(q_dict[road])
-    # 0 1 0 0
-    # E N O S
-    mapping = {out_edges[test_crossing][0]:0, #E
-               out_edges[test_crossing][1]:1, #N
-               out_edges[test_crossing][2]:2, #O
-               out_edges[test_crossing][3]:3, #S
-               }
-    for road in in_edges[test_crossing]: #iterate on ordered roads
-        front_car_direction = [0 for x in range(4)] #init list with zeros
-        for car in dc[test_crossing]:
-            # print("Debug: " + car.getLaneID() + " "+road)
-            if car.getLaneID() == road+"_0": #car is the front of current road
-                index = car.getRouteIndex()
-                current_direction = car.getRoute()[index+1]
-                front_car_direction[mapping[current_direction]] = 1
-        directions_input.extend(front_car_direction)
-        
-    # print("nn inputs: ")
-    # print(q_input, twt_input)
-    # print(directions_input)
-
-    directions_input_formatted = np.array([directions_input])
-    twt_input_formatted = np.array([twt_input])
-    q_input_formatted = np.array([q_input])
-        
-    return [[directions_input_formatted],[twt_input_formatted],[q_input_formatted]]
-
-def detect_collisions(cars_to_depart, trajectories):
-    """
-    INPUT: cars_to_depart --> list of veics that are departing from crossing
-           trajectories: ---> occ lists of each edg
-
-           Input format:
-           cars_to_depart: [veic1, veic2, veic3]    
-           trajectories: {edge1: veic3, veic4 edge2:veic1, veic2, ...}
-
-    OUTPUT: number of cars involved in a collision.
-    """
-    counter = 0
-    max = 0
-    for key in trajectories:
-        marks_for_lane = 0
-        for car in trajectories[key].occ:
-            if car in cars_to_depart:
-                marks_for_lane += 1
-        if marks_for_lane > max:
-            max = marks_for_lane
-    if max > 1:
-        return max
-    else:
-        return 0
-
-def get_reward(state1, state2, collisions):
-    """
-    function that gives the reward to the agent.
-    state: [bitvector of len = 16][x,x,x,x][y,y,y,y]
-    x = waiting times
-    y = queues
-    collisions: integer
-    """
-    waiting_times1 = state1[1][0][0]
-    q_len1 = state1[2][0][0]
-    waiting_times2 = state1[1][0][0]
-    q_len2 = state1[2][0][0]
-
-    # print(waiting_times1)
-    # print(q_len1)
-
-    q_tot = sum([x - y for x, y in zip(q_len1, q_len2)])
-    w_tot = max(waiting_times2)
-
-    # print("q_tot " + str(q_tot))
-    # print("w_tot " + str(w_tot))
-    # print("reward: " + str(q_tot - w_tot/100 - (collisions*100)))
-    
-    return (q_tot - w_tot/100 - (collisions*100))

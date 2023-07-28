@@ -14,8 +14,7 @@ class Cooperative(IntersectionManager):
     def bidSystem(self, crossroad_stop_list, traffic_stop_list):
         # function that handles bidding, uses many utility function inherited by base class.
         # input: cars waiting at the head of the crossing, cars waiting in line 
-        # output: list containing cars using the crossing, in order.
-        # remember that ehnancement boost is not considered when the winner is paying        
+        # output: ordered list of cars that have to depart from the 
         bids = []
         # crossroad_stop_list --> lista di veicoli fermi all'incrocio, in testa alle linee
         for car in crossroad_stop_list:

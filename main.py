@@ -15,7 +15,6 @@ from src.utils import *
 from src.listeners import *
 from src.CrossGraph import Graph
 
-from src.net import Agent
 #simulation index is given manually
 def collectOvertimeData(simulation_index, extra_configs):
     for filename in os.listdir("test"):
@@ -46,24 +45,6 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         Simulation runs
     """
     try:
-        mapping = {
-            #0E,1N,2O,3S
-            0:[1],
-            1:[3],
-            2:[2],
-            3:[0],
-            4:[1,3],
-            5:[1,2],
-            6:[1,0],
-            7:[3,2],
-            8:[3,0],
-            9:[2,0],
-            10:[1,3,2],
-            11:[1,3,0],
-            12:[1,2,0],
-            13:[3,2,0],
-            14:[1,3,2,0],
-        }
         traci.start(sumoCmd)
         crossroads_names = retrieveCrossroadsNames()
         crossroads, edges, in_edges = infrastructureRetrieving(crossroads_names)
@@ -96,15 +77,10 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
             model = Cooperative(settings, extra_configs)
         elif model_chosen == 'Comp':
             model = Competitive(settings)
-        # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes
-        non_players = ['10', '12', '3', '88', '96']
-        manager = Agent()
-        reward = 0
-        train_count = 0
-        done = False
+        # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes        
         while True:
-            if model_chosen == 'EB' or model_chosen == 'DA':
-                traci.simulationStep()
+            if model_chosen == 'EB' or model_chosen == 'DA':                
+                traci.simulationStep()                
             else:
                 dc = {}
                 idle_times = {}
@@ -115,11 +91,8 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                     #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
                         break                
-                departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic,manager=manager,reward=reward,mapping=mapping, train_count=train_count)
-            if not listener.getSimulationStatus():
-                #save manager braine
-                print("Saving brain....")
-                manager.save()
+                departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic)
+            if not listener.getSimulationStatus():                
                 # log_print('Simulation finished')
                 print("Simulation finished!")
                 traci.close()
@@ -128,7 +101,6 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
 
     except traci.exceptions.FatalTraCIError:
         print("Saving manager brain....")
-        manager.save()
         # log_print('Simulation interrupted')
         print("Simulation interrupted")
     
@@ -214,9 +186,9 @@ if __name__ == '__main__':
 
     q = multiprocessing.Queue()
     lock = multiprocessing.Lock()
-    extra_configs = {'simul':True, 'multiplier':2, 'crossing_cars':2, 'congestion_rate':True, 'spawn_rate':3, 'simulation_index':"1"}
+    #crossing cars = 4, crossing rate = 6
+    extra_configs = {'simul':True, 'multiplier':1,'crossing_rate':5,'crossing_cars':1, 'congestion_rate':False, 'spawn_rate':1, 'simulation_index':"1"}
     # DEBUG: uncomment below line when testing with EB
-    # extra_configs = {'congestion':True}
     for settings in configs:
             
         processes = []
