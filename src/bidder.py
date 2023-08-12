@@ -9,6 +9,7 @@ from tensorflow.keras.layers import Input, Dense, Concatenate, Embedding, Reshap
 from tensorflow.keras import Sequential
 import numpy as np
 import random
+from keras import layers
 from collections import deque
 from tensorflow import keras
 import gc
@@ -16,11 +17,11 @@ import gc
 class Agent:
 
 	def __init__(self, load, train):
-		self.action_size = 20 # veics can bid between 0 and 20
+		self.action_size = 11 # index between 0 and 10
 		self.experience_replay = deque()
 		self.gamma = 0.5 # discount rate
 		#più gamma è vicino a 1, più si da importanza alle informazioni passate.
-
+		self.batch_size = 10
 		self.training_epsilon = 0.4
 		self.exploration_epsilon = 0.6
 		self.train = train
@@ -31,7 +32,7 @@ class Agent:
 			self.epsilon = 0
 		else:
 			self.epsilon = 0.3
-		if load == False:
+		if not load:
 			self.q_network = self._build_model()
 			self.target_network = self._build_model()
 		else:
@@ -62,23 +63,19 @@ class Agent:
 		"""
 		self.q_network = keras.models.load_model(q_path)
 		self.target_network = keras.models.load_model(target_path)                
-
-	def _build_optv1_model(self):
-		"""		
-		"""
-		model = Sequential()
-		model.add(Embedding(9, 4, input_length=1)) #ritorna 1 array lungo 4
-		model.add(Reshape((4,4)))
-		model.add(Flatten(input_shape=(4,4)))
-		model.add(Dense(64, activation='relu'))
-		model.add(Dense(32, activation='relu'))
-		model.add(Dense(self.action_size, activation='softmax'))
+       	
+	def _build_model(self):
+		#input: int [1-9] represents crossroad, int[] --> position inside crossroad		
+		model = keras.Sequential()
+		model.add(layers.Dense(2, activation="relu"))
+		model.add(layers.Dense(64, activation="relu"))
+		model.add(layers.Dense(32, activation="relu"))		
+		model.add(layers.Dense(self.action_size, activation="softmax"))
 		model.compile(loss='mse', optimizer="adam")
-		
-		return model        	
+		return model
 	
-	def remember(self, state, action, reward, next_state, done):
-		self.experience_replay.append((state, action, reward, next_state, done))
+	def remember(self, state, action, reward, next_state):
+		self.experience_replay.append((state, action, reward, next_state))
 
 	def act(self, state):
 		"""        
@@ -90,23 +87,23 @@ class Agent:
 				action with the highest q-value
 		"""        
 		if np.random.rand() <= self.epsilon:
-			print("EXPLORING.......")
+			# print("EXPLORING.......")
 			return random.randrange(self.action_size) #int between 0 and 14
-		print("MAXIMIZING.....")
+		# print("MAXIMIZING.....")
 		q_values = self.q_network.predict(state, verbose=0)
-		print("Q-VALUES: " + str(q_values))
+		# print("Q-VALUES: " + str(q_values))
 		gc.collect()
 		keras.backend.clear_session()
-		print("PICKING action with index:  " + str(np.argmax(q_values[0])))
+		# print("PICKING action with index:  " + str(np.argmax(q_values[0])))
 		return np.argmax(q_values[0])
 	
 	def alighn_target_model(self):
 		self.target_network.set_weights(self.q_network.get_weights())
 		
-	def retrain(self, batch_size): #network learns from past experience        
-		minibatch = random.sample(self.experience_replay, batch_size)
+	def retrain(self): #network learns from past experience        		
+		minibatch = random.sample(self.experience_replay, self.batch_size)
 		for state, action, reward, next_state in minibatch:
-			print("DEBUG:" + str(state))
+			# print("DEBUG:" + str(state))
 			target = self.q_network.predict(state,verbose=0)        
 			t = self.target_network.predict(next_state,verbose=0) #retrieve data from past experience
 			#here we sum reward and q-value. This means that the reward

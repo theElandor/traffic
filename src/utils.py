@@ -447,9 +447,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
     :param idle_times: dictionary containing, for each crossroad, idle_time to be curtailed from waiting times
     :param listener: 'StepListener' used to check simulation status (step limit is respected)
     :return:
-    """
-    print("--------------DEPART CARS FUNCTION------------------")
-    log_print('departCars: start departing')    
+    """        
     waiting = {}
     veicDict = {}    
     crossing_cars = extra_configs['crossing_cars']
@@ -459,13 +457,13 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
         for veic in dc[crossroad]:
             waiting[crossroad].append(veic.getID())
             veicDict[veic.getID()] = veic
-    trajectories = {}
+    trajectories = {}   
     if extra_configs['simul']:
         for crossroad in dc.keys():
-            trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)
+            trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)    
     for i in range(crossing_cars):
         to_resume = []
-        for crossroad in dc.keys():
+        for crossroad in dc.keys():            
             if i < len(dc[crossroad]) and dc[crossroad][i].getID() in waiting[crossroad]: # and i < mass[crossroad]
                 waiting[crossroad].remove(dc[crossroad][i].getID()) # remove departed veichle from waiting list.
                 #make other cars with non intercepting trajectoried depart
@@ -490,20 +488,16 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
                                     if iterator == starting_node:
                                         followers.append(candidate)                                        
                                         break
-                to_resume.append(current)
-                # traci.vehicle.resume(current)
-                print("Departing " + current + "from crossroad " + crossroad)
-                # MULTIPLE SIMULTANEOUS CROSSING
-                # getLanePosition for sorting to get a ordered list
-                #iterate on veichles that are waiting directly behind current with same direction                
-                #and make them depart at the same time.
+                to_resume.append(current) # traci.vehicle.resume(current)                                
                 log_print('departCars: vehicle {} is departing from crossroad {}'.format(current, crossroad))
                 log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(current, dc[crossroad][i].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
                 dc[crossroad][i].resetCrossroadWaitingTime()
                 log_print('departCars: vehicle {} invocation of \'resetCrossroadWaitingTime\''.format(current))
-                for j in range(1, len(followers)):                    
-                    traci.vehicle.resume(followers[j])
-                    print("Departing follower " + followers[j] + "from crossroad " + crossroad)                    
+                for j in range(1, len(followers)):
+                    print("APPENDED")
+                    to_resume.append(followers[j])
+                    # we add veic to to_resume list instead of eparting it immead.
+                    # traci.vehicle.resume(followers[j])                    
                     log_print('departCars: vehicle {} is departing from crossroad {}'.format(followers[j], crossroad))
                     log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(followers[j], veicDict[followers[j]].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
                     waiting[crossroad].remove(followers[j])
@@ -513,8 +507,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
         for resume_car in to_resume:
             traci.vehicle.resume(resume_car)
         for i in range(crossing_rate): # simulation steps
-            traci.simulationStep()
-    print("--------------------------------")
+            traci.simulationStep()    
 
 
 def collectWT(crossroads_names):

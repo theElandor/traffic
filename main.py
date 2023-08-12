@@ -80,7 +80,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes        
         while True:
             if model_chosen == 'EB' or model_chosen == 'DA':                
-                traci.simulationStep()                
+                traci.simulationStep()
             else:
                 dc = {}
                 idle_times = {}
@@ -90,9 +90,10 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                     dc[crossroad], idle_times[crossroad], traffic[crossroad]= model.intersectionControl(crossroads[crossroad])
                     #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
-                        break                
+                        break
                 departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic)
-            if not listener.getSimulationStatus():                
+                traci.simulationStep()
+            if not listener.getSimulationStatus():
                 # log_print('Simulation finished')
                 print("Simulation finished!")
                 traci.close()
@@ -186,8 +187,7 @@ if __name__ == '__main__':
 
     q = multiprocessing.Queue()
     lock = multiprocessing.Lock()
-    #crossing cars = 4, crossing rate = 6
-    extra_configs = {'simul':True, 'multiplier':1,'crossing_rate':5,'crossing_cars':1, 'congestion_rate':False, 'spawn_rate':1, 'simulation_index':"1"}
+    extra_configs = {'simul':False, 'multiplier':1,'crossing_rate':6,'crossing_cars':1, 'congestion_rate':True, 'spawn_rate':1, 'simulation_index':"1"}
     # DEBUG: uncomment below line when testing with EB
     for settings in configs:
             

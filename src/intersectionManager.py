@@ -35,7 +35,7 @@ class IntersectionManager:
                 v.setCrossroadWaitingTime()
 
             # bidSystem is declared only in sub-models (to avoid use of this generic model instead of specialized ones).
-            departing_cars = self.bidSystem(crossroad_stop_list, traffic_stop_list)
+            departing_cars = self.bidSystem(crossroad_stop_list, traffic_stop_list, crossroad)
             log_print('intersectionControl: idle_time set at {}'.format(idle_time))
             crossroad.resetIdleTime()
             log_print('intersectionControl: \'resetIdleTime\' invocation for crossroad {}'.format(crossroad.getName()))
@@ -64,17 +64,17 @@ class IntersectionManager:
             if traci.vehicle.isStopped(v.getID()) and road in crossroad.getInEdges():
                 crossroad_stop_list.append(v)
             # if vehicles is stationary (NOT stopped) and near the considered crossroad, it is considered "in traffic"
-            elif traci.vehicle.getSpeed(v.getID()) < traci.vehicle.getAllowedSpeed(v.getID()) and traci.vehicle.getRoadID(v.getID()) in crossroad.getInEdges():                
+            elif traci.vehicle.getSpeed(v.getID()) < 2 and traci.vehicle.getRoadID(v.getID()) in crossroad.getInEdges():                
                 traffic_stop_list[v.getRoadID()].append(v)                
                 v.setTrafficWaitingTime()            
         assert (len(crossroad_stop_list) <= 4)
         for key in traffic_stop_list:
-            print(traffic_stop_list[key])
-            traffic_stop_list[key] = sorted(traffic_stop_list[key], key=lambda item : traci.vehicle.getPosition(item.getID()))
+            #ordering veics waiting in traffic for each road.
+            traffic_stop_list[key] = sorted(traffic_stop_list[key], key=lambda item : traci.vehicle.getLanePosition(item.getID()), reverse=True)
         return crossroad_stop_list, traffic_stop_list
     
-    def sortBids(self, bids):            
-        bids = list(reversed(sorted(bids, key=itemgetter(1))))            
+    def sortBids(self, bids):
+        bids = list(reversed(sorted(bids, key=itemgetter(1))))
         #bids[0] = winner
         winner = bids[0][0]
         winner_total_bid = bids[0][1]
@@ -100,5 +100,5 @@ class IntersectionManager:
                 bids[i][0].setBudget(bids[i][0].getBudget() - bids[i][1] + 1)
                 log_print('bigPayment: vehicle {} pays {} (new budget {})'.format(bids[i][0].getID(), bids[i][1] - 1, bids[i][0].getBudget()))
 
-    def bidSystem(self, crossroad_stop_list, traffic_stop_list): ## has to be implemented by subclasses
+    def bidSystem(self, crossroad_stop_list, traffic_stop_list, crossroad): ## has to be implemented by subclasses
         pass

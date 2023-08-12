@@ -1,0 +1,353 @@
+model: Coop
+CP: owp
+MCA: 1
+E: y
+Spn: 20
+Bdn: b
+Rts: f
+Stp: 5000
+VS: 130
+RUNS: 1
+
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 30 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+130	intersectionControl: vehicle 30 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 31 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+130	intersectionControl: vehicle 31 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 32 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+130	intersectionControl: vehicle 32 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 33 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+130	intersectionControl: vehicle 33 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 30 made a bid of 22
+130	bidSystem: vehicle 30 has a total bid of 37 (bid 22, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 31 made a bid of 45
+130	bidSystem: vehicle 31 has a total bid of 76 (bid 45, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 32 made a bid of 22
+130	bidSystem: vehicle 32 has a total bid of 37 (bid 22, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 33 made a bid of 46
+130	bidSystem: vehicle 33 has a total bid of 77 (bid 46, enhancement 1.6931471805599454)
+130	sortBids: winner is vehicle 33 with a 'total bid' of 77
+130	bidSystem: vehicle 33 pays 45
+130	bidPayment: vehicle 31 receives 11 (new budget 111)
+130	bidPayment: vehicle 32 receives 11 (new budget 111)
+130	bidPayment: vehicle 30 receives 11 (new budget 111)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad B
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 4 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+130	intersectionControl: vehicle 4 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 5 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+130	intersectionControl: vehicle 5 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 6 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+130	intersectionControl: vehicle 6 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 7 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+130	intersectionControl: vehicle 7 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 4 made a bid of 37
+130	bidSystem: vehicle 4 has a total bid of 77 (bid 37, enhancement 2.09861228866811)
+130	bidSystem: vehicle 5 made a bid of 20
+130	bidSystem: vehicle 5 has a total bid of 41 (bid 20, enhancement 2.09861228866811)
+130	bidSystem: vehicle 6 made a bid of 42
+130	bidSystem: vehicle 6 has a total bid of 88 (bid 42, enhancement 2.09861228866811)
+130	bidSystem: vehicle 7 made a bid of 41
+130	bidSystem: vehicle 7 has a total bid of 86 (bid 41, enhancement 2.09861228866811)
+130	sortBids: winner is vehicle 6 with a 'total bid' of 88
+130	bidSystem: vehicle 6 pays 41
+130	bidPayment: vehicle 7 receives 9 (new budget 109)
+130	bidPayment: vehicle 4 receives 9 (new budget 109)
+130	bidPayment: vehicle 5 receives 9 (new budget 109)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad D
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 0 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+130	intersectionControl: vehicle 0 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 1 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+130	intersectionControl: vehicle 1 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 12 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+130	intersectionControl: vehicle 12 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 23 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+130	intersectionControl: vehicle 23 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 0 made a bid of 36
+130	bidSystem: vehicle 0 has a total bid of 75 (bid 36, enhancement 2.09861228866811)
+130	bidSystem: vehicle 1 made a bid of 24
+130	bidSystem: vehicle 1 has a total bid of 50 (bid 24, enhancement 2.09861228866811)
+130	bidSystem: vehicle 12 made a bid of 33
+130	bidSystem: vehicle 12 has a total bid of 69 (bid 33, enhancement 2.09861228866811)
+130	bidSystem: vehicle 23 made a bid of 30
+130	bidSystem: vehicle 23 has a total bid of 50 (bid 30, enhancement 1.6931471805599454)
+130	sortBids: winner is vehicle 0 with a 'total bid' of 75
+130	bidSystem: vehicle 0 pays 35
+130	bidPayment: vehicle 12 receives 6 (new budget 106)
+130	bidPayment: vehicle 23 receives 6 (new budget 106)
+130	bidPayment: vehicle 1 receives 6 (new budget 106)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad A
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 26 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+130	intersectionControl: vehicle 26 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 27 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+130	intersectionControl: vehicle 27 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 28 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+130	intersectionControl: vehicle 28 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 29 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+130	intersectionControl: vehicle 29 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 26 made a bid of 35
+130	bidSystem: vehicle 26 has a total bid of 59 (bid 35, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 27 made a bid of 26
+130	bidSystem: vehicle 27 has a total bid of 44 (bid 26, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 28 made a bid of 34
+130	bidSystem: vehicle 28 has a total bid of 57 (bid 34, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 29 made a bid of 31
+130	bidSystem: vehicle 29 has a total bid of 52 (bid 31, enhancement 1.6931471805599454)
+130	sortBids: winner is vehicle 26 with a 'total bid' of 59
+130	bidSystem: vehicle 26 pays 34
+130	bidPayment: vehicle 28 receives 5 (new budget 105)
+130	bidPayment: vehicle 29 receives 5 (new budget 105)
+130	bidPayment: vehicle 27 receives 5 (new budget 105)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad I
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 21 invocation of 'getTimePassedInTraffic' at crossroad H with idle time 0
+130	intersectionControl: vehicle 21 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 22 invocation of 'getTimePassedInTraffic' at crossroad H with idle time 0
+130	intersectionControl: vehicle 22 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 24 invocation of 'getTimePassedInTraffic' at crossroad H with idle time 0
+130	intersectionControl: vehicle 24 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 25 invocation of 'getTimePassedInTraffic' at crossroad H with idle time 0
+130	intersectionControl: vehicle 25 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 21 made a bid of 34
+130	bidSystem: vehicle 21 has a total bid of 71 (bid 34, enhancement 2.09861228866811)
+130	bidSystem: vehicle 22 made a bid of 26
+130	bidSystem: vehicle 22 has a total bid of 44 (bid 26, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 24 made a bid of 34
+130	bidSystem: vehicle 24 has a total bid of 57 (bid 34, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 25 made a bid of 41
+130	bidSystem: vehicle 25 has a total bid of 69 (bid 41, enhancement 1.6931471805599454)
+130	sortBids: winner is vehicle 21 with a 'total bid' of 71
+130	bidSystem: vehicle 21 pays 33
+130	bidPayment: vehicle 25 receives 5 (new budget 105)
+130	bidPayment: vehicle 24 receives 5 (new budget 105)
+130	bidPayment: vehicle 22 receives 5 (new budget 105)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad H
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 13 invocation of 'getTimePassedInTraffic' at crossroad F with idle time 0
+130	intersectionControl: vehicle 13 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 14 invocation of 'getTimePassedInTraffic' at crossroad F with idle time 0
+130	intersectionControl: vehicle 14 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 15 invocation of 'getTimePassedInTraffic' at crossroad F with idle time 0
+130	intersectionControl: vehicle 15 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 16 invocation of 'getTimePassedInTraffic' at crossroad F with idle time 0
+130	intersectionControl: vehicle 16 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 13 made a bid of 50
+130	bidSystem: vehicle 13 has a total bid of 104 (bid 50, enhancement 2.09861228866811)
+130	bidSystem: vehicle 14 made a bid of 49
+130	bidSystem: vehicle 14 has a total bid of 102 (bid 49, enhancement 2.09861228866811)
+130	bidSystem: vehicle 15 made a bid of 37
+130	bidSystem: vehicle 15 has a total bid of 77 (bid 37, enhancement 2.09861228866811)
+130	bidSystem: vehicle 16 made a bid of 20
+130	bidSystem: vehicle 16 has a total bid of 41 (bid 20, enhancement 2.09861228866811)
+130	sortBids: winner is vehicle 13 with a 'total bid' of 104
+130	bidSystem: vehicle 13 pays 49
+130	bidPayment: vehicle 14 receives 6 (new budget 106)
+130	bidPayment: vehicle 15 receives 6 (new budget 106)
+130	bidPayment: vehicle 16 receives 6 (new budget 106)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad F
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 17 invocation of 'getTimePassedInTraffic' at crossroad G with idle time 0
+130	intersectionControl: vehicle 17 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 18 invocation of 'getTimePassedInTraffic' at crossroad G with idle time 0
+130	intersectionControl: vehicle 18 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 19 invocation of 'getTimePassedInTraffic' at crossroad G with idle time 0
+130	intersectionControl: vehicle 19 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 20 invocation of 'getTimePassedInTraffic' at crossroad G with idle time 0
+130	intersectionControl: vehicle 20 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 17 made a bid of 43
+130	bidSystem: vehicle 17 has a total bid of 90 (bid 43, enhancement 2.09861228866811)
+130	bidSystem: vehicle 18 made a bid of 25
+130	bidSystem: vehicle 18 has a total bid of 42 (bid 25, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 19 made a bid of 17
+130	bidSystem: vehicle 19 has a total bid of 28 (bid 17, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 20 made a bid of 33
+130	bidSystem: vehicle 20 has a total bid of 69 (bid 33, enhancement 2.09861228866811)
+130	sortBids: winner is vehicle 17 with a 'total bid' of 90
+130	bidSystem: vehicle 17 pays 42
+130	bidPayment: vehicle 20 receives 5 (new budget 105)
+130	bidPayment: vehicle 18 receives 5 (new budget 105)
+130	bidPayment: vehicle 19 receives 5 (new budget 105)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad G
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 8 invocation of 'getTimePassedInTraffic' at crossroad E with idle time 0
+130	intersectionControl: vehicle 8 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 9 invocation of 'getTimePassedInTraffic' at crossroad E with idle time 0
+130	intersectionControl: vehicle 9 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 10 invocation of 'getTimePassedInTraffic' at crossroad E with idle time 0
+130	intersectionControl: vehicle 10 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 11 invocation of 'getTimePassedInTraffic' at crossroad E with idle time 0
+130	intersectionControl: vehicle 11 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 8 made a bid of 54
+130	bidSystem: vehicle 8 has a total bid of 113 (bid 54, enhancement 2.09861228866811)
+130	bidSystem: vehicle 9 made a bid of 44
+130	bidSystem: vehicle 9 has a total bid of 92 (bid 44, enhancement 2.09861228866811)
+130	bidSystem: vehicle 10 made a bid of 59
+130	bidSystem: vehicle 10 has a total bid of 123 (bid 59, enhancement 2.09861228866811)
+130	bidSystem: vehicle 11 made a bid of 58
+130	bidSystem: vehicle 11 has a total bid of 121 (bid 58, enhancement 2.09861228866811)
+130	sortBids: winner is vehicle 10 with a 'total bid' of 123
+130	bidSystem: vehicle 10 pays 58
+130	bidPayment: vehicle 11 receives 11 (new budget 111)
+130	bidPayment: vehicle 8 receives 11 (new budget 111)
+130	bidPayment: vehicle 9 receives 11 (new budget 111)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad E
+130	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+130	intersectionControl: vehicle 2 invocation of 'getTimePassedInTraffic' at crossroad C with idle time 0
+130	intersectionControl: vehicle 2 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 3 invocation of 'getTimePassedInTraffic' at crossroad C with idle time 0
+130	intersectionControl: vehicle 3 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 34 invocation of 'getTimePassedInTraffic' at crossroad C with idle time 0
+130	intersectionControl: vehicle 34 invocation of 'setCrossroadWaitingTime'
+130	intersectionControl: vehicle 35 invocation of 'getTimePassedInTraffic' at crossroad C with idle time 0
+130	intersectionControl: vehicle 35 invocation of 'setCrossroadWaitingTime'
+130	bidSystem: vehicle 2 made a bid of 30.8
+130	bidSystem: vehicle 2 has a total bid of 64 (bid 30.8, enhancement 2.09861228866811)
+130	bidSystem: vehicle 3 made a bid of 33
+130	bidSystem: vehicle 3 has a total bid of 69 (bid 33, enhancement 2.09861228866811)
+130	bidSystem: vehicle 34 made a bid of 21
+130	bidSystem: vehicle 34 has a total bid of 35 (bid 21, enhancement 1.6931471805599454)
+130	bidSystem: vehicle 35 made a bid of 53
+130	bidSystem: vehicle 35 has a total bid of 89 (bid 53, enhancement 1.6931471805599454)
+130	sortBids: winner is vehicle 35 with a 'total bid' of 89
+130	bidSystem: vehicle 35 pays 52
+130	bidPayment: vehicle 3 receives 11 (new budget 111)
+130	bidPayment: vehicle 2 receives 11 (new budget 111)
+130	bidPayment: vehicle 34 receives 11 (new budget 111)
+130	intersectionControl: idle_time set at 0
+130	intersectionControl: 'resetIdleTime' invocation for crossroad C
+130	departCars: vehicle 33 is departing from crossroad B
+130	departCars: vehicle 33 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 33 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 6 is departing from crossroad D
+130	departCars: vehicle 6 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 6 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 0 is departing from crossroad A
+130	departCars: vehicle 0 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 0 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 26 is departing from crossroad I
+130	departCars: vehicle 26 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 26 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 21 is departing from crossroad H
+130	departCars: vehicle 21 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 21 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 13 is departing from crossroad F
+130	departCars: vehicle 13 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 13 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 17 is departing from crossroad G
+130	departCars: vehicle 17 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 17 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 10 is departing from crossroad E
+130	departCars: vehicle 10 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 10 invocation of 'resetCrossroadWaitingTime'
+130	departCars: vehicle 35 is departing from crossroad C
+130	departCars: vehicle 35 invocation of 'getTimePassedAtCrossroad' with time_passed of 130.0
+130	departCars: vehicle 35 invocation of 'resetCrossroadWaitingTime'
+137	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+137	intersectionControl: vehicle 30 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+137	intersectionControl: vehicle 30 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 31 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+137	intersectionControl: vehicle 31 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 32 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+137	intersectionControl: vehicle 32 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 69 invocation of 'getTimePassedInTraffic' at crossroad B with idle time 0
+137	intersectionControl: vehicle 69 invocation of 'setCrossroadWaitingTime'
+137	bidSystem: vehicle 30 made a bid of 35
+137	bidSystem: vehicle 30 has a total bid of 59 (bid 35, enhancement 1.6931471805599454)
+137	bidSystem: vehicle 31 made a bid of 49
+137	bidSystem: vehicle 31 has a total bid of 82 (bid 49, enhancement 1.6931471805599454)
+137	bidSystem: vehicle 32 made a bid of 18
+137	bidSystem: vehicle 32 has a total bid of 30 (bid 18, enhancement 1.6931471805599454)
+137	bidSystem: vehicle 69 made a bid of 30
+137	bidSystem: vehicle 69 has a total bid of 30 (bid 30, enhancement 1.0)
+137	sortBids: winner is vehicle 31 with a 'total bid' of 82
+137	bidSystem: vehicle 31 pays 48
+137	bidPayment: vehicle 30 receives 13 (new budget 124)
+137	bidPayment: vehicle 69 receives 13 (new budget 101)
+137	bidPayment: vehicle 32 receives 13 (new budget 124)
+137	intersectionControl: idle_time set at 0
+137	intersectionControl: 'resetIdleTime' invocation for crossroad B
+137	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+137	intersectionControl: vehicle 4 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+137	intersectionControl: vehicle 4 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 5 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+137	intersectionControl: vehicle 5 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 7 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+137	intersectionControl: vehicle 7 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 42 invocation of 'getTimePassedInTraffic' at crossroad D with idle time 0
+137	intersectionControl: vehicle 42 invocation of 'setCrossroadWaitingTime'
+137	bidSystem: vehicle 4 made a bid of 30
+137	bidSystem: vehicle 4 has a total bid of 62 (bid 30, enhancement 2.09861228866811)
+137	bidSystem: vehicle 5 made a bid of 22
+137	bidSystem: vehicle 5 has a total bid of 46 (bid 22, enhancement 2.09861228866811)
+137	bidSystem: vehicle 7 made a bid of 33
+137	bidSystem: vehicle 7 has a total bid of 69 (bid 33, enhancement 2.09861228866811)
+137	bidSystem: vehicle 42 made a bid of 38
+137	bidSystem: vehicle 42 has a total bid of 64 (bid 38, enhancement 1.6931471805599454)
+137	sortBids: winner is vehicle 7 with a 'total bid' of 69
+137	bidSystem: vehicle 7 pays 32
+137	bidPayment: vehicle 42 receives 6 (new budget 92)
+137	bidPayment: vehicle 4 receives 6 (new budget 115)
+137	bidPayment: vehicle 5 receives 6 (new budget 115)
+137	intersectionControl: idle_time set at 0
+137	intersectionControl: 'resetIdleTime' invocation for crossroad D
+137	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+137	intersectionControl: vehicle 1 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+137	intersectionControl: vehicle 1 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 12 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+137	intersectionControl: vehicle 12 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 23 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+137	intersectionControl: vehicle 23 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 36 invocation of 'getTimePassedInTraffic' at crossroad A with idle time 0
+137	intersectionControl: vehicle 36 invocation of 'setCrossroadWaitingTime'
+137	bidSystem: vehicle 1 made a bid of 41
+137	bidSystem: vehicle 1 has a total bid of 86 (bid 41, enhancement 2.09861228866811)
+137	bidSystem: vehicle 12 made a bid of 36
+137	bidSystem: vehicle 12 has a total bid of 75 (bid 36, enhancement 2.09861228866811)
+137	bidSystem: vehicle 23 made a bid of 21
+137	bidSystem: vehicle 23 has a total bid of 44 (bid 21, enhancement 2.09861228866811)
+137	bidSystem: vehicle 36 made a bid of 15
+137	bidSystem: vehicle 36 has a total bid of 25 (bid 15, enhancement 1.6931471805599454)
+137	sortBids: winner is vehicle 1 with a 'total bid' of 86
+137	bidSystem: vehicle 1 pays 40
+137	bidPayment: vehicle 12 receives 5 (new budget 111)
+137	bidPayment: vehicle 23 receives 5 (new budget 111)
+137	bidPayment: vehicle 36 receives 5 (new budget 92)
+137	intersectionControl: idle_time set at 0
+137	intersectionControl: 'resetIdleTime' invocation for crossroad A
+137	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+137	intersectionControl: vehicle 27 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+137	intersectionControl: vehicle 27 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 28 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+137	intersectionControl: vehicle 28 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 29 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+137	intersectionControl: vehicle 29 invocation of 'setCrossroadWaitingTime'
+137	intersectionControl: vehicle 62 invocation of 'getTimePassedInTraffic' at crossroad I with idle time 0
+137	intersectionControl: vehicle 62 invocation of 'setCrossroadWaitingTime'
+137	bidSystem: vehicle 27 made a bid of 23
+137	bidSystem: vehicle 27 has a total bid of 38 (bid 23, enhancement 1.6931471805599454)
+137	bidSystem: vehicle 28 made a bid of 19
+137	bidSystem: vehicle 28 has a total bid of 32 (bid 19, enhancement 1.6931471805599454)
+137	bidSystem: vehicle 29 made a bid of 19
+137	bidSystem: vehicle 29 has a total bid of 32 (bid 19, enhancement 1.6931471805599454)
+137	bidSystem: vehicle 62 made a bid of 12
+137	bidSystem: vehicle 62 has a total bid of 12 (bid 12, enhancement 1.0)
+137	sortBids: winner is vehicle 27 with a 'total bid' of 38
+137	bidSystem: vehicle 27 pays 22
+137	bidPayment: vehicle 29 receives 5 (new budget 110)
+137	bidPayment: vehicle 28 receives 5 (new budget 110)
+137	bidPayment: vehicle 62 receives 5 (new budget 85)
+137	intersectionControl: idle_time set at 0
+137	intersectionControl: 'resetIdleTime' invocation for crossroad I
+137	intersectionControl: enough cars in crossroad_stop_list, auction starts...
+137	intersectionControl: vehicle 22 invocation of 'getTimePassedInTraffic' at crossroad H with idle time 0
+137	intersectionControl: vehicle 22 invocation of 'setCrossroadWaitingTime'
