@@ -28,7 +28,7 @@ class Agent:
 		self.exploration_epsilon = 1
 		self.train = train
 		self.model_version = "bidderv1"
-		self.optimizer = Adam(learning_rate=0.02)
+		self.optimizer = Adam(learning_rate=0.01)
 		self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
 		self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"        
 		if train == False:  # we always want to exploit better solution
