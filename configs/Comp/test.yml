@@ -5,6 +5,6 @@ E: y
 Spn: 20
 Bdn: b
 Rts: f
-Stp: 5000
-VS: 130
+Stp: 30000
+VS: 120
 RUNS: 1

@@ -28,7 +28,7 @@ def collectOvertimeData(simulation_index, extra_configs):
             fine_data ={}
             for element in raw:
                 fine_data[element[0]] = float(element[1])
-                
+               
         if not os.path.isdir("overtime_data/simul_"+simulation_index):
             os.makedirs("overtime_data/simul_"+simulation_index)        
         with open("overtime_data/"+"simul_"+simulation_index+"/"+filename+".txt", "w") as f:
@@ -36,7 +36,7 @@ def collectOvertimeData(simulation_index, extra_configs):
             f.write("std " + str(fine_data["std"]) + "\n")
         with open("overtime_data/simul_"+simulation_index+"/name.txt","w") as f:
             f.write(str(extra_configs))
-        
+       
 
 def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo", extra_configs=None):
     sumoCmd = [sumoBinary, "-c", "sumo_cfg/project.sumocfg", "--threads", "8"]
@@ -91,20 +91,25 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                     #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
                         break
-                departCars(settings, dc,idle_times, listener, in_edges, out_edges, extra_configs,traffic)
+                departCars(settings, dc, idle_times, listener, in_edges, out_edges, extra_configs,traffic)
                 traci.simulationStep()
             if not listener.getSimulationStatus():
                 # log_print('Simulation finished')
                 print("Simulation finished!")
                 traci.close()
                 break
-            
+        model.bidder.save()
+        if(model.test_veic != "?"):  # write saved money only when bidder is active
+            percentage_saved = (model.bank / model.fair_bids)*100
+            with open("/home/eros/traffic/saved.txt", "w") as saved_f:
+                saved_f.write("fair_bids: " + str(model.fair_bids)+"%!\n")
+                saved_f.write("bank: " + str(model.bank)+"%!\n")
+                saved_f.write("percentage of money saved: " + str(percentage_saved)+"%!\n")
 
     except traci.exceptions.FatalTraCIError:
         print("Saving manager brain....")
         # log_print('Simulation interrupted')
         print("Simulation interrupted")
-    
     return crossroads_names
 
 # function made to organize and plot gathered data, during the "run" function
@@ -136,7 +141,7 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
     crossroads_wt.to_csv(data_file.format('crossroads') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_wt.to_csv(data_file.format('traffic') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     crossroad_vehicles.to_csv(data_file.format('crossroad-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
-    traffic_vehicles.to_csv(data_file.format('traffic-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])    
+    traffic_vehicles.to_csv(data_file.format('traffic-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     print(OKGREEN + f'Raw data written in data/{chunk_name}[{time}]{configs["model"]}|*.txt' + ENDC)
 
     if chunk_name == 0:
