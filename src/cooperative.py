@@ -12,9 +12,15 @@ class Cooperative(IntersectionManager):
         self.multiplier = extra_configs["multiplier"]
         self.congestion_rate = extra_configs["congestion_rate"]
         
-        self.load = False
-        self.train = True
-        self.test_veic = "74"
+        self.load = True
+        self.train = False
+
+        self.test_veic = "?"
+        self.em_veic = "75"
+        self.sound_boost = False
+        #huge budget is given to emergency vehicle        
+        VehiclesDict.vd[self.em_veic].setBudget(1000000000)
+        VehiclesDict.vd[self.em_veic].setMaxBudget(1000000000)
         
         self.cumulative_reward = 0
         self.bank = 0
@@ -38,7 +44,16 @@ class Cooperative(IntersectionManager):
         # and remember experience at the beginning of predict_bid
         # function
         self.prev_state = []
-        self.prev_action = []
+        self.prev_action = []        
+
+    def get_distance(self, veic):
+        point1 = VehiclesDict.vd[self.em_veic].getPosition()
+        point2 = veic.getPosition()        
+        if len(point1) != 2 or len(point2) != 2:
+            raise ValueError("Error when calculating vehicles distance")
+        
+        distance = math.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
+        return distance
     
     def get_reward(self, prev_state, prev_action, current_state):
         """
@@ -114,28 +129,41 @@ class Cooperative(IntersectionManager):
         self.prev_action = action
         return action
     
+    def getSoundBoost(self, car):
+        em_veic = VehiclesDict.vd[self.em_veic]
+        em_route_index = em_veic.getRouteIndex()
+        em_route = em_veic.getRoute()
+        
+        car_current_road = traci.vehicle.getRoadID(car.getID())
+        if car_current_road in em_route[(em_route_index+1)::]:
+            distance = self.get_distance(car)
+            boost = 1+math.exp((1/math.log10(math.sqrt(distance))))
+            print("PBoost: E-"+str(car.getID()) + " = " + str(boost) + "\tdistance:"+str(distance))        
+            return boost
+        else:
+            return 1
+    
     def bidSystem(self, crossroad_stop_list, traffic_stop_list, crossroad):
         # function that handles bidding, uses many utility function inherited by base class.
         # input: cars waiting at the head of the crossing, cars waiting in line 
         # output: ordered list of cars that have to depart from the crossroad
         # traffic_stop_list and crossroad_stop_list are related to the input crossroad.
-        bids = []
-        test_veic = self.test_veic
+        bids = []        
         sponsors = {}
         # for now state only saves data related to test_veic           
         for v in VehiclesDict.vd.values(): #for each veichle
-            if v.getID() == test_veic:  # only check test_veic
+            if v.getID() == self.test_veic:  # only check test_veic
                 road = traci.vehicle.getRoadID(v.getID())
                 try:
                     position = traffic_stop_list[road].index(v)
                 except ValueError:
                     position = -1
                 current_state = [self.mapping[crossroad.name], position]
-                current_state_input = np.array([current_state])
+                current_state_input = np.array([current_state])                  
         # crossroad_stop_list --> lista di veicoli fermi all'incrocio, in testa alle linee
         for car in crossroad_stop_list:
             car_bid = int(car.makeBid() + 1)
-            if car.getID() == test_veic:
+            if car.getID() == self.test_veic:
                 bid_modifier = self.predict_bid(current_state_input)
                 discount = (bid_modifier / 10)
 
@@ -146,19 +174,15 @@ class Cooperative(IntersectionManager):
                 car_bid = car_bid * discount
                 print("test_veic bidded " + str(car_bid))
                 print("Current state is: ")
-                print(current_state)
-                # print("OTHER WAITING VEICS ARE: ")
-                # road = traci.vehicle.getRoadID(car.getID())
-                # for c in traffic_stop_list[road]:
-                #     print(c)
+                print(current_state)  
                     
             sponsorship = 0
-
+            
             # Collecting sponsorships
             if self.settings['Spn'] > 0:
                 for sp in traffic_stop_list[car.getRoadID()]:
                     tip = sp.makeSponsor()
-                    if sp.getID() == test_veic:
+                    if sp.getID() == self.test_veic:
                         sponsor_modifier = self.predict_bid(current_state_input)
                         tip_discount = (sponsor_modifier / 10)
                         
@@ -184,8 +208,14 @@ class Cooperative(IntersectionManager):
                 enhance = self.multiplier*math.log(len(traffic_stop_list[car.getRoadID()]) + 1) + 1 ## get num of cars in the same lane and apply formula.
             else:
                 enhance = 1
-            total_bid = int(car_bid * enhance)
-            bids.append([car, total_bid, car_bid, enhance])            
+            #TODO: actually applying boost using the function
+            if self.sound_boost: 
+                boost = self.getSoundBoost(car)
+            else:
+                boost = 1                
+                
+            total_bid = int(car_bid * enhance * boost)
+            bids.append([car, total_bid, car_bid, enhance, boost])            
             log_print('bidSystem: vehicle {} has a total bid of {} (bid {}, enhancement {})'.format(car.getID(), total_bid, car_bid, enhance))
 
         bids, winner, winner_total_bid, winner_bid, winner_enhance = self.sortBids(bids)
@@ -198,7 +228,8 @@ class Cooperative(IntersectionManager):
         else:
             winner.setBudget(winner.getBudget() - winner_bid + 1)
         sponsorship_winner = sponsors[winner]
-        self.bidPayment(bids, winner_bid-sponsorship_winner)
+        if self.sound_boost == True and winner.getID() != self.em_veic: #em veic does not pay        
+            self.bidPayment(bids, winner_bid-sponsorship_winner)
         departing = []
         for b in bids:
             departing.append(b[0])  # appends departing cars in order and return them as a list.

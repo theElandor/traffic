@@ -42,7 +42,7 @@ class VehicleAbstract(abc.ABC):
             # budget is set to its default only if the reroute is effectively necessary
             # need try catch, in EB model vehicles don't have budget, so refill is not necessary
             try:
-                self.setBudget(100)
+                self.setBudget(self.max_budget)
             except:
                 print("Rerouted veic " + self.id + " without refilling budget\n")
             if self.settings['Rts'] == 'f':

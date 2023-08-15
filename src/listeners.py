@@ -27,11 +27,11 @@ class Listener(traci.StepListener):
         'Emergent Behavior' model.
         """
         self.step_count += 1
-        if self.step_count in self.timestamps:
-            # print("collect WT now\n")
-            cross_total, traffic_total, df_waiting_times, crossroads_wt, traffic_wt, crossroad_vehicles, traffic_vehicles = collectWT(self.crossroads_names)
-            with open("test/temp"+str(self.step_count), "w") as f:
-                f.write(str(traffic_total))
+        # if self.step_count in self.timestamps:
+        #     # print("collect WT now\n")
+        #     cross_total, traffic_total, df_waiting_times, crossroads_wt, traffic_wt, crossroad_vehicles, traffic_vehicles = collectWT(self.crossroads_names)
+        #     with open("test/temp"+str(self.step_count), "w") as f:
+        #         f.write(str(traffic_total))
             
         # if self.step_count in self.spawn_points[1::] and self.spawned_cars < self.settings['VS']: #spawn cars according to spawn_rate
         #     # print(self.spawned_cars)

@@ -6,6 +6,7 @@ class VehicleAuction(VehicleAbstract):
     def __init__(self, id, settings, budget=100):
         super().__init__(id, settings)
         self.budget = int(budget)
+        self.max_budget = int(budget)
         self.crossroad_counter = self.countCrossroads()
 
     def setLabel(self):
@@ -14,7 +15,8 @@ class VehicleAuction(VehicleAbstract):
         """
         traci.vehicle.setParameter(self.id, 'State', self.budget)
         return
-
+    def setMaxBudget(self, max_budget):
+        self.max_budget = int(max_budget)
     def reroute(self):
         super().reroute()
         return
