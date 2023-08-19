@@ -457,13 +457,13 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
         for veic in dc[crossroad]:
             waiting[crossroad].append(veic.getID())
             veicDict[veic.getID()] = veic
-    trajectories = {}   
+    trajectories = {}
     if extra_configs['simul']:
         for crossroad in dc.keys():
-            trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)    
+            trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)
     for i in range(crossing_cars):
         to_resume = []
-        for crossroad in dc.keys():            
+        for crossroad in dc.keys():
             if i < len(dc[crossroad]) and dc[crossroad][i].getID() in waiting[crossroad]: # and i < mass[crossroad]
                 waiting[crossroad].remove(dc[crossroad][i].getID()) # remove departed veichle from waiting list.
                 #make other cars with non intercepting trajectoried depart

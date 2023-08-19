@@ -131,9 +131,6 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
             f.write(' ')
     file_name += '|{}'
 
-    # print("DEBUG INFO:")
-    # print(crossroads_wt)
-    # print(df_waiting_times)
     data_file = 'data/' + file_name
     df_waiting_times.to_csv(data_file.format('global') + '.txt', index_label=False, index=False)
     cross_total.to_csv(data_file.format('cross-total') + '.txt', index_label=False)
