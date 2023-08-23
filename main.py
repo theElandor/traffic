@@ -101,7 +101,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         model.bidder.save()
         if(model.test_veic != "?"):  # write saved money only when bidder is active
             percentage_saved = (model.bank / model.fair_bids)*100
-            with open("/home/eros/traffic/saved.txt", "w") as saved_f:
+            with open("./qlearn_data/"+str(settings['VS'])+"/saved_"+str(model.test_veic)+".txt", "w") as saved_f:
                 saved_f.write("fair_bids: " + str(model.fair_bids)+"%!\n")
                 saved_f.write("bank: " + str(model.bank)+"%!\n")
                 saved_f.write("percentage of money saved: " + str(percentage_saved)+"%!\n")
@@ -115,8 +115,8 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
 # function made to organize and plot gathered data, during the "run" function
 # runs the simulation with the RUN function, then just plots the data.
 def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo-gui", lock=None, q=None, extra_configs=None):
+    qlearn = "off"
     crossroads_names = run(configs, configs['model'], chunk_name, time, sumoBinary, extra_configs)
-
     cross_total, traffic_total, df_waiting_times, crossroads_wt, traffic_wt, crossroad_vehicles, traffic_vehicles = collectWT(crossroads_names)
     
     file_name = f'{chunk_name}[' + time + ']' + configs['model']
@@ -131,17 +131,19 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
             f.write(' ')
     file_name += '|{}'
 
-    # print("DEBUG INFO:")
-    # print(crossroads_wt)
-    # print(df_waiting_times)
     data_file = 'data/' + file_name
     df_waiting_times.to_csv(data_file.format('global') + '.txt', index_label=False, index=False)
     cross_total.to_csv(data_file.format('cross-total') + '.txt', index_label=False)
     traffic_total.to_csv(data_file.format('traffic-total') + '.txt', index_label=False)
     crossroads_wt.to_csv(data_file.format('crossroads') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_wt.to_csv(data_file.format('traffic') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
+    
+    crossroad_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/crossroad_'+str(qlearn)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
+    traffic_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/traffic_'+str(qlearn)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
+
     crossroad_vehicles.to_csv(data_file.format('crossroad-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_vehicles.to_csv(data_file.format('traffic-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
+    
     print(OKGREEN + f'Raw data written in data/{chunk_name}[{time}]{configs["model"]}|*.txt' + ENDC)
 
     if chunk_name == 0:
@@ -179,7 +181,7 @@ if __name__ == '__main__':
     #     print(e)
     #     choice = 1
 
-    choice = 1 
+    choice = 1
     if choice == 1:
         configs = read_config()
     else:
@@ -213,8 +215,8 @@ if __name__ == '__main__':
             for s in settings.keys():
                 file_name += '_' + s + ':' + str(settings[s])
             file_name += '|{}'
-            cwt_file = open('data/' + file_name.format('cross-total') + '.txt', 'w')    
-            twt_file = open('data/' + file_name.format('traffic-total') + '.txt', 'w')                
+            cwt_file = open('data/' + file_name.format('cross-total') + '.txt', 'w')
+            twt_file = open('data/' + file_name.format('traffic-total') + '.txt', 'w')
             # Note that you have to call Queue.get() for each item you want to return.
             while not q.empty():
                 cwt = q.get()
@@ -228,4 +230,3 @@ if __name__ == '__main__':
             print(f"Chunk {counter}/{len(configs)} finished")
 
     print("All done")
-
