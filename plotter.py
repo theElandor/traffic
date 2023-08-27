@@ -4,7 +4,7 @@ import statistics as s
 
 gran = 80
 
-filename = "cumulative_reward.txt"
+filename = "loss.txt"
 name = "unk.png"
 if filename == "loss.txt":
     name = "loss.png"

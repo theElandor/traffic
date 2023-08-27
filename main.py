@@ -59,8 +59,6 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         timestamps = np.linspace(1000,settings['Stp'], 10)
         x = settings['Stp']//100
         spawn_points = np.linspace(0,int(settings['Stp']), x, endpoint=False)
-        # print(timestamps)
-        # print(spawn_points)
         
         # toggle following line to spawn all veics at once
         spawnCars(settings['VS'], settings, routes)
@@ -99,26 +97,31 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 traci.close()
                 break
         model.bidder.save()
-        if(model.test_veic != "?"):  # write saved money only when bidder is active
-            percentage_saved = (model.bank / model.fair_bids)*100
-            with open("./qlearn_data/"+str(settings['VS'])+"/saved_"+str(model.test_veic)+".txt", "w") as saved_f:
-                saved_f.write("fair_bids: " + str(model.fair_bids)+"%!\n")
-                saved_f.write("bank: " + str(model.bank)+"%!\n")
-                saved_f.write("percentage of money saved: " + str(percentage_saved)+"%!\n")
-
+        # uncomment this to get saved money
+        if(model.writeSaved):  # write saved money only when bidder is active
+            if (model.piggy_bank):
+                percentage_saved = (model.bank / model.fair_bids)*100
+                with open("./qlearn_data/"+str(settings['VS'])+"/saved_"+str(model.test_veic)+".txt", "w") as saved_f:
+                    saved_f.write("fair_bids: " + str(model.fair_bids)+"%!\n")
+                    saved_f.write("bank: " + str(model.bank)+"%!\n")
+                    saved_f.write("percentage of money saved: " + str(percentage_saved)+"%!\n")
+            else:
+                with open("./qlearn_data/"+str(settings['VS'])+"/saved_"+str(model.test_veic)+".txt", "w") as saved_f:
+                    saved_f.write("money used: " + str(model.fair_bids)+"%!\n")
+                    
     except traci.exceptions.FatalTraCIError:
         print("Saving manager brain....")
         # log_print('Simulation interrupted')
         print("Simulation interrupted")
-    return crossroads_names
+    return crossroads_names, model
 
 # function made to organize and plot gathered data, during the "run" function
 # runs the simulation with the RUN function, then just plots the data.
 def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo-gui", lock=None, q=None, extra_configs=None):
-    qlearn = "off"
-    crossroads_names = run(configs, configs['model'], chunk_name, time, sumoBinary, extra_configs)
+    # change qlearn variable to write different file in directory
+    crossroads_names, model = run(configs, configs['model'], chunk_name, time, sumoBinary, extra_configs)
     cross_total, traffic_total, df_waiting_times, crossroads_wt, traffic_wt, crossroad_vehicles, traffic_vehicles = collectWT(crossroads_names)
-    
+    simulationName = model.simulationName
     file_name = f'{chunk_name}[' + time + ']' + configs['model']
     for s in configs.keys():
         file_name += '_' + s + ':' + str(configs[s])
@@ -138,8 +141,9 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
     crossroads_wt.to_csv(data_file.format('crossroads') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_wt.to_csv(data_file.format('traffic') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     
-    crossroad_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/crossroad_'+str(qlearn)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
-    traffic_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/traffic_'+str(qlearn)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
+    # uncomment this for evaluation
+    crossroad_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/crossroad_'+str(simulationName)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
+    traffic_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/traffic_'+str(simulationName)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
 
     crossroad_vehicles.to_csv(data_file.format('crossroad-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_vehicles.to_csv(data_file.format('traffic-vehicles') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
@@ -167,6 +171,12 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
     return
 
 if __name__ == '__main__':
+    with open("bids.txt", "w") as bid:
+        bid.write("crossroad,amount\n")
+    with open("flow.txt", "w") as flow:
+        flow.write("crossroad,veics\n")
+    with open("encounters.txt", "w") as en:
+        en.write("crossroad,trafficStopList\n")
     g = generateGraph()
     # models = ['EB', 'DA'] EA = emergent behaviour, DA = decentralized Auction
     choice_pt = PrettyTable()
@@ -188,7 +198,7 @@ if __name__ == '__main__':
         configs = manual_config(['Coop', 'Comp', 'EB', 'DA'])
 
     sumo = input('Graphical Interface [y/N]: ')
-    sumo = 'sumo-gui' if sumo == 'y' or sumo == 'Y' else 'sumo' 
+    sumo = 'sumo-gui' if sumo == 'y' or sumo == 'Y' else 'sumo'
 
     counter = 0
 

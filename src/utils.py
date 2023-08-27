@@ -463,7 +463,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
             trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)    
     for i in range(crossing_cars):
         to_resume = []
-        for crossroad in dc.keys():            
+        for crossroad in dc.keys():
             if i < len(dc[crossroad]) and dc[crossroad][i].getID() in waiting[crossroad]: # and i < mass[crossroad]
                 waiting[crossroad].remove(dc[crossroad][i].getID()) # remove departed veichle from waiting list.
                 #make other cars with non intercepting trajectoried depart
@@ -476,19 +476,21 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
                 if extra_configs['simul']:
                     starting_node = trajectories[crossroad][current_start]
                 followers.append(current)
-                if current not in non_players and extra_configs['simul']: #if it is a aut. driven veic, then we can look for more aut.veics that can cross together
-                    for candidate in waiting[crossroad]: #for each other waiting veichle                    
+                if current not in non_players and extra_configs['simul']:  # if it is a aut. driven veic, then we can look for more aut.veics that can cross together
+                    for candidate in waiting[crossroad]:  # for each other waiting veichle
                         iterator = starting_node
                         if candidate not in non_players:
-                            while True: #need to emulate do-while loop                            
+                            while True:  # need to emulate do-while loop
                                 if [v for v in followers if v in [g.getID() for g in iterator.occ]] and candidate in [g.getID() for g in iterator.occ]:
                                     break
                                 else:
                                     iterator = iterator.next
                                     if iterator == starting_node:
-                                        followers.append(candidate)                                        
+                                        followers.append(candidate)
                                         break
-                to_resume.append(current) # traci.vehicle.resume(current)                                
+                to_resume.append(current)  # traci.vehicle.resume(current)
+                with open("flow.txt", "a") as flow:
+                    flow.write(current + "," + crossroad + "\n")
                 log_print('departCars: vehicle {} is departing from crossroad {}'.format(current, crossroad))
                 log_print('departCars: vehicle {} invocation of \'getTimePassedAtCrossroad\' with time_passed of {}'.format(current, dc[crossroad][i].getTimePassedAtCrossroad(crossroad, idle_times[crossroad])))
                 dc[crossroad][i].resetCrossroadWaitingTime()

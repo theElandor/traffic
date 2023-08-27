@@ -25,8 +25,8 @@ class VehicleAuction(VehicleAbstract):
         :return:
         bid, made from the vehicle for its auction
         """
-        if self.settings['Bdn'] == 'b':            
-            return self.getBudget()/self.crossroad_counter            
+        if self.settings['Bdn'] == 'b':
+            return self.getBudget()/self.crossroad_counter
         else:
             return randint(0, int(self.getBudget()))
 

@@ -1,3 +1,1 @@
-fair_bids: 1906%!
-bank: 1430.5999999999995%!
-percentage of money saved: 75.0577124868835%!
+money used: 63123.342857142874%!

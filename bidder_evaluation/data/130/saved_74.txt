@@ -1,0 +1,3 @@
+fair_bids: 2224%!
+bank: 1713.6999999999996%!
+percentage of money saved: 77.0548561151079%!

@@ -13,6 +13,7 @@ from keras import layers
 from collections import deque
 from tensorflow import keras
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import initializers
 import gc
 
 class LossHistory(keras.callbacks.Callback):
@@ -32,10 +33,11 @@ class Agent:
 
             self.gamma = 0.3  # discount rate
             #gamma --> importanza della reward futura rispetto alla reward attuale
-            self.training_epsilon = 0.1
+            self.training_epsilon = 0.2
             self.exploration_epsilon = 1
+            self.evaluation_epsilon = 0
             self.train = train
-            self.model_version = "bidder"
+            self.model_version = "bidderv2"
             self.optimizer = Adam(learning_rate=0.0001)
             self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
             self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"
@@ -65,6 +67,12 @@ class Agent:
             and the model is trying to get new examples in memory
             """
             self.epsilon = self.training_epsilon
+        def set_evaluation_epsilon(self):
+            """
+            Used when memory size is bigger than batch size
+            and the model is trying to get new examples in memory
+            """
+            self.epsilon = self.evaluation_epsilon
         def load(self, q_path, target_path):
             """
             Method that loads the models from specified paths
@@ -82,9 +90,9 @@ class Agent:
             # get number of columns in training
 
             # add model layers
-            model.add(Dense(128, activation='relu', input_shape=(9,)))
-            model.add(Dense(128, activation='relu'))
-            model.add(Dense(128, activation='relu'))
+            model.add(Dense(128, activation='relu', input_shape=(9,),kernel_initializer=initializers.RandomNormal(stddev=0.1),bias_initializer=initializers.Zeros()))
+            model.add(Dense(128, activation='relu', kernel_initializer=initializers.RandomNormal(stddev=0.1),bias_initializer=initializers.Zeros()))
+            model.add(Dense(128, activation='relu', kernel_initializer=initializers.RandomNormal(stddev=0.1),bias_initializer=initializers.Zeros()))
             model.add(Dense(self.action_size, activation='linear'))
             model.compile(optimizer=self.optimizer, loss='mse')
             return model
