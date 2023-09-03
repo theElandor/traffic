@@ -11,14 +11,14 @@ class Cooperative(IntersectionManager):
         super().__init__(settings)
         self.multiplier = extra_configs["multiplier"]
         self.congestion_rate = extra_configs["congestion_rate"]
-        self.load = False
-        self.train = True
+        self.load = True
+        self.train = False
         self.writeSaved = False
         self.simple_saver = False
         self.evaluation = False
         
-        self.simulationName = "booster"
-        self.test_veic = "74"
+        self.simulationName = "off"
+        self.test_veic = "?"
         
         self.piggy_bank = False
         self.max_memory = 250
@@ -131,7 +131,7 @@ class Cooperative(IntersectionManager):
                 self.sample += 1
             if len(self.bidder.experience_replay) < self.bidder.batch_size:
                 self.bidder.set_exploration_epsilon()
-            else: # so if memory is full enough
+            else:  # so if memory is full enough
                 self.bidder.set_training_epsilon()
                 if self.sample > self.freq:  # train once each 10 actions
                     self.sample = 0

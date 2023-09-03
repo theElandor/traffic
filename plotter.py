@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math as m
 import statistics as s
-gran = 100
+gran = 180
 
 filename = "reward.txt"
 
@@ -17,7 +17,7 @@ with open(filename) as f:
     blocks = []
     chunk = []
     y = []
-    for i in range(1, int(len(data)/2)):
+    for i in range(1, len(data)):
         chunk.append(data[i])
         if i % gran == 0:
             blocks.append(chunk[:])
@@ -25,8 +25,8 @@ with open(filename) as f:
     y = [s.mean(c) for c in blocks]
     x = [i for i in range(len(y))]
 
-    x_points = [i for i in range(int(len(data)/2))]
-    plt.xlabel("Sets of 80 function calls")
+    x_points = [i for i in range(len(data))]
+    plt.xlabel("Sets of 180 function calls")
     plt.ylabel(name)
     plt.plot(x, y, '--bo')
     plt.savefig(name, dpi=300)
