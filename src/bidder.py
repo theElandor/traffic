@@ -23,32 +23,27 @@ class LossHistory(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         self.losses.append(logs.get('loss'))
 
-
 class Agent:
 
         def __init__(self, load, train):
             self.action_size = 11  # index between 0 and 10
             self.experience_replay = deque()
             self.batch_size = 32
-
-            self.gamma = 0.3  # discount rate
-            #gamma --> importanza della reward futura rispetto alla reward attuale
-            self.training_epsilon = 0.2
+            # discount rate --> importanza della reward futura rispetto alla reward attuale            
+            self.gamma = 0.3
+            self.training_epsilon = 0.1
             self.exploration_epsilon = 1
             self.evaluation_epsilon = 0
             self.train = train
-            self.model_version = "bidderv2"
+            self.model_version = "hope"
             self.optimizer = Adam(learning_rate=0.0001)
             self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
             self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"
-            if not train:  # we always want to exploit better solution
-                self.epsilon = 0
-            else:
-                self.epsilon = 0.3
             if not load:
                 self.q_network = self._build_model()
                 self.target_network = self._build_model()
             else:
+                self.set_evaluation_epsilon()
                 self.load(self.q_path, self.target_path)
         def save(self):
             """

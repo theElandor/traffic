@@ -508,8 +508,13 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
                     log_print('departCars: vehicle {} invocation of \'resetCrossroadWaitingTime\''.format(followers[j]))
         for resume_car in to_resume:
             traci.vehicle.resume(resume_car)
-        for i in range(crossing_rate): # simulation steps
-            traci.simulationStep()    
+            if veicDict[resume_car].lazy_refill:
+                veicDict[resume_car].gained_money += veicDict[resume_car].getBudget()
+                veicDict[resume_car].setBudget(100)
+                veicDict[resume_car].managedLanes = [item for item in veicDict[resume_car].route if item in veicDict[resume_car].managedLanes]
+                veicDict[resume_car].lazy_refill = False
+        for i in range(crossing_rate):  # simulation steps
+            traci.simulationStep()
 
 
 def collectWT(crossroads_names):

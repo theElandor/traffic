@@ -7,6 +7,7 @@ class VehicleAuction(VehicleAbstract):
         super().__init__(id, settings)
         self.budget = int(budget)
         self.crossroad_counter = self.countCrossroads()
+        self.lazy_refill = False
 
     def setLabel(self):
         """
@@ -25,13 +26,23 @@ class VehicleAuction(VehicleAbstract):
         :return:
         bid, made from the vehicle for its auction
         """
+        # self.route is route
+        # veic.getRouteIndex() to get current index
         if self.settings['Bdn'] == 'b':
-            return self.getBudget()/self.crossroad_counter
+            current_road = traci.vehicle.getRoadID(self.getID())
+            current_index = self.managedLanes.index(current_road)
+            rem = self.crossroad_counter-current_index
+            to_bid = self.getBudget()/rem
+            if (self.getID() == "74"):
+                print("Budget: " + str(self.getBudget()))
+                print("rem: " + str(rem))
+                print("Bidding: " + str(to_bid))
+            return to_bid
         else:
             return randint(0, int(self.getBudget()))
 
     def setBudget(self, budget):
-        if budget > 0:
+        if budget >= 0:
             self.budget = int(budget)
         self.setLabel()
 

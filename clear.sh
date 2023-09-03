@@ -1,0 +1,10 @@
+rm saved.txt
+rm reward.txt
+rm cumulative_reward.txt
+rm loss.txt
+rm bids.txt
+rm reroute.txt
+rm encounters.txt
+rm flow.txt
+rm gained.txt
+rm *.png

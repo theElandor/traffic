@@ -15,7 +15,21 @@ from src.utils import *
 from src.listeners import *
 from src.CrossGraph import Graph
 
-#simulation index is given manually
+
+def initialize_files():
+    """
+    Function needed to initialize text files(csv format)
+    used for plotting
+    """
+    with open("bids.txt", "w") as bid:
+        bid.write("crossroad,amount\n")
+    with open("flow.txt", "w") as flow:
+        flow.write("crossroad,veics\n")
+    with open("encounters.txt", "w") as en:
+        en.write("crossroad,trafficStopList\n")
+    with open("reroute.txt", "w") as rer:
+        rer.write("value\n")
+
 def collectOvertimeData(simulation_index, extra_configs):
     for filename in os.listdir("test"):
         file = os.path.join("test", filename)
@@ -77,7 +91,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
             model = Competitive(settings)
         # NOTE: EB and DA don't need a dedicated class, the specific vehicles 'are' the classes        
         while True:
-            if model_chosen == 'EB' or model_chosen == 'DA':                
+            if model_chosen == 'EB' or model_chosen == 'DA':
                 traci.simulationStep()
             else:
                 dc = {}
@@ -97,6 +111,10 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 traci.close()
                 break
         model.bidder.save()
+        if model.test_veic != "?":
+            with open("./gained.txt", "w") as gained:
+                gained.write(str(model.trained_veic.gained_money)+"\n")
+                gained.write(str(model.trained_veic.total_reroutes)+"\n")
         # uncomment this to get saved money
         if(model.writeSaved):  # write saved money only when bidder is active
             if (model.piggy_bank):
@@ -171,12 +189,7 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
     return
 
 if __name__ == '__main__':
-    with open("bids.txt", "w") as bid:
-        bid.write("crossroad,amount\n")
-    with open("flow.txt", "w") as flow:
-        flow.write("crossroad,veics\n")
-    with open("encounters.txt", "w") as en:
-        en.write("crossroad,trafficStopList\n")
+    initialize_files()
     g = generateGraph()
     # models = ['EB', 'DA'] EA = emergent behaviour, DA = decentralized Auction
     choice_pt = PrettyTable()
@@ -207,7 +220,6 @@ if __name__ == '__main__':
     extra_configs = {'simul':False, 'multiplier':1,'crossing_rate':6,'crossing_cars':1, 'congestion_rate':True, 'spawn_rate':1, 'simulation_index':"1"}
     # DEBUG: uncomment below line when testing with EB
     for settings in configs:
-            
         processes = []
         time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 

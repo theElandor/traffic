@@ -73,12 +73,12 @@ class IntersectionManager:
             traffic_stop_list[key] = sorted(traffic_stop_list[key], key=lambda item : traci.vehicle.getLanePosition(item.getID()), reverse=True)
         return crossroad_stop_list, traffic_stop_list
     
-    def sortBids(self, bids):
+    def sortBids(self, bids, sponsors):
         bids = list(reversed(sorted(bids, key=itemgetter(1))))
         #bids[0] = winner
         winner = bids[0][0]
         winner_total_bid = bids[0][1]
-        winner_bid = bids[0][2]
+        winner_bid = bids[0][2] - sponsors[winner]
         winner_enhance = bids[0][3]
         log_print('sortBids: winner is vehicle {} with a \'total bid\' of {}'.format(winner.getID(), winner_total_bid))
         return bids, winner, winner_total_bid, winner_bid, winner_enhance

@@ -22,6 +22,6 @@ for c in x:
 
 fig, ax = plt.subplots()
 bar_container = ax.bar(x, y)
-ax.set(ylabel='Vehicles', title='Traffico incontrato dal veicolo di testing', ylim=(0, 500))
+ax.set(ylabel='Vehicles', title='Traffico incontrato')
 ax.bar_label(bar_container, fmt='{:,.0f}')
 plt.savefig("bid_plot.png")

@@ -11,18 +11,20 @@ class Cooperative(IntersectionManager):
         super().__init__(settings)
         self.multiplier = extra_configs["multiplier"]
         self.congestion_rate = extra_configs["congestion_rate"]
-        
-        self.load = True
-        self.train = False
-        self.writeSaved = True
+        self.load = False
+        self.train = True
+        self.writeSaved = False
         self.simple_saver = False
         self.evaluation = False
+        
         self.simulationName = "booster"
-        self.piggy_bank = False
-        self.max_memory = 100
         self.test_veic = "74"
+        
+        self.piggy_bank = False
+        self.max_memory = 250
         self.freq = 10
-        self.alpha = 0.7  # importance of traffic flow compared to using cheap bets
+        # parameter needed in training phase.
+        self.alpha = 0.3  # importance of traffic flow compared to using cheap bets
 
         self.freeze = False
         self.cumulative_reward = 0
@@ -57,8 +59,7 @@ class Cooperative(IntersectionManager):
         state: [crossroad id, veic position]
         + crossroad id: numeric ID of the crossroad
         + veic position: veic position in lane (0: immediatly before crosser, -1 waiting to cross)
-
-        reward:
+        reward: to be defined
 
         """
         # TODO: need to add bid value to minimize overall money spent
@@ -69,12 +70,12 @@ class Cooperative(IntersectionManager):
         current_position = current_state[0][1]
 
         discount = prev_action / 10  # [0, 0.1, 0.2, 0.3...1]
-        position_reward = (prev_position - current_position)
-        if prev_crossroad != current_crossroad:
-            position_reward = 1  # if the veic changes crossroad, do not consider position
-        if prev_crossroad == current_crossroad and prev_position == current_position:
-            position_reward = -1
+        position_reward = (prev_position - current_position)  # 1 if pos increased
+        if prev_crossroad != current_crossroad:  # if veic crosses crossroad
+            position_reward = 2
         final_reward = (self.alpha*(position_reward) + (1-self.alpha)*(1-discount))
+        if prev_crossroad == current_crossroad and prev_position == current_position:
+            final_reward = -0.3  # if veic does not move, reward is 0
         self.cumulative_reward += final_reward
         print("reward: " + str(final_reward))
         with open("reward.txt", "a") as f:
@@ -114,7 +115,7 @@ class Cooperative(IntersectionManager):
         if self.bidder.train:
             print("TESTING VEIC PREDICTING WITH THIS INPUT:")
             print(prev_state_input_encoded, current_state_input_encoded)
-            if len(prev_state_input_encoded[0]):
+            if len(prev_state_input_encoded[0]): # skips first prediction to avoid error
                 reward = self.get_reward(self.prev_state, self.prev_action, current_state_input)
                 if self.evaluation == False:  # always remember
                     self.bidder.remember(prev_state_input_encoded, self.prev_action, reward, current_state_input_encoded)
@@ -123,14 +124,16 @@ class Cooperative(IntersectionManager):
                     if len(self.bidder.experience_replay) < self.max_memory:
                         self.bidder.remember(prev_state_input_encoded, self.prev_action, reward, current_state_input_encoded)
                     else:
+                        # freezes memory and sets epsilon
+                        # so that the model always exploits, never explores
                         self.freeze = True
                         self.bidder.set_evaluation_epsilon()
                 self.sample += 1
             if len(self.bidder.experience_replay) < self.bidder.batch_size:
                 self.bidder.set_exploration_epsilon()
-            else:  # train when memory is full enough, one each 10 actions
-                if self.sample > 10:
-                    self.bidder.set_training_epsilon()
+            else: # so if memory is full enough
+                self.bidder.set_training_epsilon()
+                if self.sample > self.freq:  # train once each 10 actions
                     self.sample = 0
                     self.train_count += 1
                     print("Training(" + str(self.train_count)+"/"+str(self.freq)+")")
@@ -167,8 +170,9 @@ class Cooperative(IntersectionManager):
                 current_state_input = np.array([current_state])
         # crossroad_stop_list --> lista di veicoli fermi all'incrocio, in testa alle linee
         for car in crossroad_stop_list:
-            car_bid = int(car.makeBid() + 1)
+            car_bid = int(car.makeBid())
             if car.getID() == test_veic:
+                self.trained_veic = car
                 if self.simple_saver:
                     self.last_discounted_bid = car_bid * 0.1
                     self.last_flat_bid = car_bid
@@ -184,8 +188,8 @@ class Cooperative(IntersectionManager):
                     with open("bids.txt", "a") as bids_file:
                         bids_file.write(str(crossroad)+","+str(car_bid)+"\n")
                     print("test_veic bidded " + str(car_bid))
-                    print("Current state is: ")
-                    print(current_state)
+                    # print("Current state is: ")
+                    # print(current_state)
             # COLLECT SPONSORSHIP FROM CARS BEHIND
             sponsorship = 0
             # Collecting sponsorships
@@ -203,6 +207,7 @@ class Cooperative(IntersectionManager):
                         else:  # in this case test veic2 predicts best bid
                             with open("./encounters.txt", "a") as en:
                                 en.write(crossroad.name + "," + str(len(traffic_stop_list[car.getRoadID()]))+"\n")
+                                en.write(crossroad.name + "," + str(len(crossroad_stop_list))+"\n")
                             sponsor_modifier = self.predict_bid(current_state_input)
                             tip_discount = (sponsor_modifier / 10)
                             if self.piggy_bank:
@@ -230,12 +235,12 @@ class Cooperative(IntersectionManager):
             bids.append([car, total_bid, car_bid, enhance])
             log_print('bidSystem: vehicle {} has a total bid of {} (bid {}, enhancement {})'.format(car.getID(), total_bid, car_bid, enhance))
 
-        bids, winner, winner_total_bid, winner_bid, winner_enhance = self.sortBids(bids)
+        bids, winner, winner_total_bid, winner_bid, winner_enhance = self.sortBids(bids, sponsors)
 
         log_print('bidSystem: vehicle {} pays {}'.format(winner.getID(), winner_bid - 1))
         # if winner is trained veic, then we update the amount of money spent and saved
         if winner.getID() == self.test_veic and self.piggy_bank:
-            winner.setBudget(winner.getBudget() - self.last_flat_bid + 1)
+            winner.setBudget(winner.getBudget() - self.last_flat_bid)
             self.bank += self.last_flat_bid - self.last_discounted_bid
             self.fair_bids += self.last_flat_bid
         else:
@@ -247,5 +252,4 @@ class Cooperative(IntersectionManager):
         departing = []
         for b in bids:
             departing.append(b[0])  # appends departing cars in order and return them as a list.
-
         return departing
