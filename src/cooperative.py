@@ -14,7 +14,8 @@ class Cooperative(IntersectionManager):
         
         self.load = True
         self.train = False
-
+        self.boosted_cars = []
+        self.not_boosted_cars = []
         self.test_veic = "?"
         self.em_veic = "75"
         self.sound_boost = False
@@ -130,17 +131,26 @@ class Cooperative(IntersectionManager):
         return action
     
     def getSoundBoost(self, car):
+        """
+        Function that boosts a car's bid if it is on a em. veichle route.
+        It is usefull to make the traffic flow in favour of emergency vehicles,
+        reducing the time needed to empty the lanes that will be used by the em.veic.
+        """
         em_veic = VehiclesDict.vd[self.em_veic]
         em_route_index = em_veic.getRouteIndex()
         em_route = em_veic.getRoute()
         
         car_current_road = traci.vehicle.getRoadID(car.getID())
         if car_current_road in em_route[(em_route_index+1)::]:
+            if car.getID() not in self.boosted_cars:
+                self.boosted_cars.append(car.getID())                
             distance = self.get_distance(car)
             boost = 1+math.exp((1/math.log10(math.sqrt(distance))))
             print("PBoost: E-"+str(car.getID()) + " = " + str(boost) + "\tdistance:"+str(distance))        
             return boost
         else:
+            if car.getID() not in self.not_boosted_cars:
+                self.not_boosted_cars.append(car.getID())
             return 1
     
     def bidSystem(self, crossroad_stop_list, traffic_stop_list, crossroad):
@@ -207,8 +217,7 @@ class Cooperative(IntersectionManager):
             if self.settings['E'] == 'y':
                 enhance = self.multiplier*math.log(len(traffic_stop_list[car.getRoadID()]) + 1) + 1 ## get num of cars in the same lane and apply formula.
             else:
-                enhance = 1
-            #TODO: actually applying boost using the function
+                enhance = 1            
             if self.sound_boost: 
                 boost = self.getSoundBoost(car)
             else:
@@ -228,7 +237,7 @@ class Cooperative(IntersectionManager):
         else:
             winner.setBudget(winner.getBudget() - winner_bid + 1)
         sponsorship_winner = sponsors[winner]
-        if self.sound_boost == True and winner.getID() != self.em_veic: #em veic does not pay        
+        if winner.getID() != self.em_veic: #em veic does not pay        
             self.bidPayment(bids, winner_bid-sponsorship_winner)
         departing = []
         for b in bids:

@@ -105,7 +105,13 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 saved_f.write("fair_bids: " + str(model.fair_bids)+"%!\n")
                 saved_f.write("bank: " + str(model.bank)+"%!\n")
                 saved_f.write("percentage of money saved: " + str(percentage_saved)+"%!\n")
-
+        if model.sound_boost:
+            with open("/home/eros/traffic/boosted_cars.txt", "w") as b:
+                for car in model.boosted_cars:
+                    b.write(car + "\n")
+            with open("/home/eros/traffic/not_boosted_cars.txt", "w") as n:
+                for car in model.not_boosted_cars:
+                    n.write(car + "\n")
     except traci.exceptions.FatalTraCIError:
         print("Saving manager brain....")
         # log_print('Simulation interrupted')
