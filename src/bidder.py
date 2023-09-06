@@ -31,9 +31,9 @@ class Agent:
             self.batch_size = 32
             # discount rate --> importanza della reward futura rispetto alla reward attuale            
             self.gamma = 0.3
-            self.training_epsilon = 0.1
-            self.exploration_epsilon = 1
-            self.evaluation_epsilon = 0
+            self.training_epsilon = 0.1 # epsilon used during training
+            self.exploration_epsilon = 1 # epsilon used only for exploration (always explore)
+            self.evaluation_epsilon = 0 # (always exploit)
             self.train = train
             self.model_version = "hope"
             self.optimizer = Adam(learning_rate=0.0001)
@@ -97,38 +97,37 @@ class Agent:
 
         def act(self, state):
             """
-            function used to build experience, by either using random action or current optimal
-            INPUT
-            tate: state of the environment
-
-            OUTPUT: integer (0-14) to either a random action or the
-                            action with the highest q-value
+            state: tensor of length 9
             """
             if np.random.rand() <= self.epsilon:
-                # print("EXPLORING.......")
-                return random.randrange(self.action_size)
-            # print("MAXIMIZING.....")
+                # exploring
+                return random.randrange(self.action_size)        
+            #exploiting
             q_values = self.q_network.predict(state, verbose=0)
             print("Q-VALUES: " + str(q_values))
             gc.collect()
             keras.backend.clear_session()
-            # print("PICKING action with index:  " + str(np.argmax(q_values[0])))
             return np.argmax(q_values[0])
         
         def alighn_target_model(self):
+            """
+            function used to copy q-network weights into target-network weights
+            """
             self.target_network.set_weights(self.q_network.get_weights())
                 
-        def retrain(self):  # network learns from past experience
+        def retrain(self):
+            """
+            Train function            
+            """
             minibatch = random.sample(self.experience_replay, self.batch_size)
             for state, action, reward, next_state in minibatch:
                 print("DEBUG:" + str(state))
-                target = self.q_network.predict(state, verbose=0)
-                t = self.target_network.predict(next_state, verbose=0)  # retrieve data from past experience
-                # here we sum reward and q-value. This means that the reward
-                # function and the neural network must return "compatible" values.
+                target = self.q_network.predict(state, verbose=0) # Q(s_{t},a_{t})
+                t = self.target_network.predict(next_state, verbose=0)  # Q(s_{t+1}, a_{t+1})
                 target[0][action] = reward + self.gamma * np.amax(t)
-                history = LossHistory()
+                history = LossHistory() # track loss
                 self.q_network.fit(state, target, epochs=1, callbacks=[history])
+                # write loss on file
                 with open("loss.txt", "a") as f:
                     for n in history.losses:
                         f.write(str(n) + "\n")
