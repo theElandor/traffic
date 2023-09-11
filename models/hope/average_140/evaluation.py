@@ -43,3 +43,8 @@ print("Booster/Off std\t\t" + str(traffic_stdwt_booster)[:4]+"\t"+str(traffic_st
 print("-------Crossroad--------")
 print("Booster/Off mean\t" + str(crossroad_meanwt_booster)[:5]+"\t"+str(crossroad_meanwt_off)[:5])
 print("Booster/Off std\t\t" + str(crossroad_stdwt_booster)[:4]+"\t"+str(crossroad_stdwt_off)[:4])
+
+with open("evaluation_data.txt", "w") as f:
+    f.write("mean_traffic, std_traffic, mean_crossroad, std_crossroad\n")
+    f.write(str(traffic_meanwt_booster) + ", " + str(traffic_stdwt_booster) + ", " + str(crossroad_meanwt_booster) + ", " + str(crossroad_stdwt_booster) + "\n")
+    f.write(str(traffic_meanwt_off) + ", " + str(traffic_stdwt_off) + ", " + str(crossroad_meanwt_off) + ", " + str(crossroad_stdwt_off) + "\n")

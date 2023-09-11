@@ -15,16 +15,18 @@ class Cooperative(IntersectionManager):
         self.train = False
         self.writeSaved = False
         self.simple_saver = False
-        self.evaluation = False
         
-        self.simulationName = "off"
-        self.test_veic = "?"
+        # evaluation section
+        self.evaluation = False
+        self.max_memory = 400
+        
+        self.simulationName = "booster"
+        self.test_veic = "74"
+        self.alpha = 0.4  # importance of traffic flow compared to using cheap bets
         
         self.piggy_bank = False
-        self.max_memory = 250
         self.freq = 10
         # parameter needed in training phase.
-        self.alpha = 0.3  # importance of traffic flow compared to using cheap bets
 
         self.freeze = False
         self.cumulative_reward = 0
@@ -59,8 +61,10 @@ class Cooperative(IntersectionManager):
         state: [crossroad id, veic position]
         + crossroad id: numeric ID of the crossroad
         + veic position: veic position in lane (0: immediatly before crosser, -1 waiting to cross)
-        reward: to be defined
-
+        position reward: 1 if passes crossroad
+        position reward: 0.6 if increases position in traffic
+        position reward: 0 otherwise
+        discount reward: (1-discount)
         """
         # TODO: need to add bid value to minimize overall money spent
         print(prev_state, prev_action, current_state)
@@ -70,12 +74,15 @@ class Cooperative(IntersectionManager):
         current_position = current_state[0][1]
 
         discount = prev_action / 10  # [0, 0.1, 0.2, 0.3...1]
-        position_reward = (prev_position - current_position)  # 1 if pos increased
+        position_reward = (prev_position - current_position)*0.6
+        # final_reward = (self.alpha*(position_reward) + (1-self.alpha)*(1-discount))
+        # if position_reward == 0:
+            # final_reward = final_reward/2
+        if position_reward == 0:
+            position_reward = 0.1
         if prev_crossroad != current_crossroad:  # if veic crosses crossroad
-            position_reward = 2
-        final_reward = (self.alpha*(position_reward) + (1-self.alpha)*(1-discount))
-        if prev_crossroad == current_crossroad and prev_position == current_position:
-            final_reward = -0.3  # if veic does not move, reward is 0
+            position_reward = 5
+        final_reward = position_reward * (1-discount)
         self.cumulative_reward += final_reward
         print("reward: " + str(final_reward))
         with open("reward.txt", "a") as f:
@@ -115,7 +122,7 @@ class Cooperative(IntersectionManager):
         if self.bidder.train:
             print("TESTING VEIC PREDICTING WITH THIS INPUT:")
             print(prev_state_input_encoded, current_state_input_encoded)
-            if len(prev_state_input_encoded[0]): # skips first prediction to avoid error
+            if len(prev_state_input_encoded[0]):  # skips first prediction to avoid error
                 reward = self.get_reward(self.prev_state, self.prev_action, current_state_input)
                 if self.evaluation == False:  # always remember
                     self.bidder.remember(prev_state_input_encoded, self.prev_action, reward, current_state_input_encoded)
@@ -129,10 +136,18 @@ class Cooperative(IntersectionManager):
                         self.freeze = True
                         self.bidder.set_evaluation_epsilon()
                 self.sample += 1
-            if len(self.bidder.experience_replay) < self.bidder.batch_size:
+            memsize = len(self.bidder.experience_replay)
+            if memsize < self.bidder.batch_size:
                 self.bidder.set_exploration_epsilon()
+                print("eps: "+str(self.bidder.epsilon))
             else:  # so if memory is full enough
-                self.bidder.set_training_epsilon()
+                if memsize < self.max_memory/2:
+                    self.bidder.epsilon = 0.3
+                elif memsize > self.max_memory/2 and memsize < self.max_memory:
+                    self.bidder.epsilon = 0.2
+                else:
+                    self.bidder.epsilon = 0.1
+                print("eps: "+str(self.bidder.epsilon))
                 if self.sample > self.freq:  # train once each 10 actions
                     self.sample = 0
                     self.train_count += 1

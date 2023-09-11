@@ -26,17 +26,21 @@ class LossHistory(keras.callbacks.Callback):
 class Agent:
 
         def __init__(self, load, train):
+            
+            self.activation = 'softmax'
+            self.loss = 'mse'
+            
             self.action_size = 11  # index between 0 and 10
             self.experience_replay = deque()
             self.batch_size = 32
             # discount rate --> importanza della reward futura rispetto alla reward attuale            
-            self.gamma = 0.3
-            self.training_epsilon = 0.1
+            self.gamma = 0.2
+            self.training_epsilon = 0.2
             self.exploration_epsilon = 1
             self.evaluation_epsilon = 0
             self.train = train
-            self.model_version = "hope"
-            self.optimizer = Adam(learning_rate=0.0001)
+            self.model_version = "testing"
+            self.optimizer = Adam(learning_rate=0.00001)
             self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
             self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"
             if not load:
@@ -85,11 +89,11 @@ class Agent:
             # get number of columns in training
 
             # add model layers
-            model.add(Dense(128, activation='relu', input_shape=(9,),kernel_initializer=initializers.RandomNormal(stddev=0.1),bias_initializer=initializers.Zeros()))
-            model.add(Dense(128, activation='relu', kernel_initializer=initializers.RandomNormal(stddev=0.1),bias_initializer=initializers.Zeros()))
-            model.add(Dense(128, activation='relu', kernel_initializer=initializers.RandomNormal(stddev=0.1),bias_initializer=initializers.Zeros()))
-            model.add(Dense(self.action_size, activation='linear'))
-            model.compile(optimizer=self.optimizer, loss='mse')
+            model.add(Dense(128, activation='relu', input_shape=(9,),kernel_initializer=initializers.RandomNormal(stddev=0.15),bias_initializer=initializers.Zeros()))
+            model.add(Dense(128, activation='relu', kernel_initializer=initializers.RandomNormal(stddev=0.15),bias_initializer=initializers.Zeros()))
+            model.add(Dense(128, activation='relu', kernel_initializer=initializers.RandomNormal(stddev=0.15),bias_initializer=initializers.Zeros()))
+            model.add(Dense(self.action_size, activation=self.activation))
+            model.compile(optimizer=self.optimizer, loss=self.loss)
             return model
     
         def remember(self, state, action, reward, next_state):

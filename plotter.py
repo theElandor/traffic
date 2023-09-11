@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math as m
 import statistics as s
-gran = 180
+gran = 90
 
 filename = "reward.txt"
 
@@ -26,7 +26,7 @@ with open(filename) as f:
     x = [i for i in range(len(y))]
 
     x_points = [i for i in range(len(data))]
-    plt.xlabel("Sets of 180 function calls")
+    plt.xlabel("Sets of " + str(gran) + " function calls")
     plt.ylabel(name)
     plt.plot(x, y, '--bo')
     plt.savefig(name, dpi=300)

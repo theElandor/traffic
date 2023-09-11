@@ -2,7 +2,7 @@ model: Coop
 CP: owp
 MCA: 1
 E: y
-Spn: 10
+Spn: 20
 Bdn: b
 Rts: f
 Stp: 5000
