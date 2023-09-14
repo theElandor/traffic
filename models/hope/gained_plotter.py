@@ -33,7 +33,7 @@ veics = ("120", "140", "150")
 
 fig, ax = plt.subplots()
 bar_container = ax.bar(veics, y, color='yellowgreen', yerr=err, width=0.6)
-ax.set(ylabel='Valuta risparmiata rispetto al totale', xlabel='numero di veicoli',title='Valuta risparmiata dal bidder', ylim=(0, 100))
+ax.set(ylabel='Valuta risparmiata rispetto al totale', xlabel='numero di veicoli',title='Valuta risparmiata da bidderV1', ylim=(0, 100))
 ax.bar_label(bar_container, fmt='{:,.0f}%', padding=5)
 
 plt.savefig("gained.png")

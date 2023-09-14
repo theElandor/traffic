@@ -6,7 +6,6 @@ from src.bidder import Agent
 
 
 class Cooperative(IntersectionManager):
-
     def __init__(self, settings, extra_configs):
         super().__init__(settings)
         self.multiplier = extra_configs["multiplier"]
@@ -14,7 +13,7 @@ class Cooperative(IntersectionManager):
         self.load = True
         self.train = False
         self.writeSaved = False
-        self.simple_saver = False
+        self.simple_saver = True
         
         # evaluation section
         self.evaluation = False
@@ -189,9 +188,9 @@ class Cooperative(IntersectionManager):
             if car.getID() == test_veic:
                 self.trained_veic = car
                 if self.simple_saver:
-                    self.last_discounted_bid = car_bid * 0.1
+                    self.last_discounted_bid = car_bid * 0.3
                     self.last_flat_bid = car_bid
-                    car_bid = car_bid * 0.1
+                    car_bid = car_bid * 0.3
                 else:  # in this case veic uses the bidder to predict the best reward
                     bid_modifier = self.predict_bid(current_state_input)
                     discount = (bid_modifier / 10)  # discount will be between 0 and 1

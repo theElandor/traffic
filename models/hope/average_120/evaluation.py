@@ -14,6 +14,7 @@ for root, dirs, filenames in os.walk(directory):
         for file in os.listdir(os.path.join(directory, dirname)):
             if file != "saved_74.txt":
                 data = pd.read_csv(os.path.join(directory, dirname, file))
+                print(data)                
                 veic = data.iloc[74, 0]
                 mean = data.iloc[74, 2]
                 std  = data.iloc[74, 3]

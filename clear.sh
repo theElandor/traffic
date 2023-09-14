@@ -7,4 +7,6 @@ rm reroute.txt
 rm encounters.txt
 rm flow.txt
 rm gained.txt
+rm gained_booster.txt
+rm gained_off.txt
 rm *.png

@@ -16,7 +16,7 @@ final_data['std_booster']  = []
 # final_data['std_simple'] = []
 
 
-evaluate = "traffic"
+evaluate = "crossroad"
 directory = "./qlearn_data/"
 for root, dirs, filenames in os.walk(directory):
     for dirname in sorted(dirs, key=int):

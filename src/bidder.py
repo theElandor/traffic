@@ -37,9 +37,14 @@ class Agent:
             self.gamma = 0.2
             self.training_epsilon = 0.2
             self.exploration_epsilon = 1
-            self.evaluation_epsilon = 0
+
+            # to test a random bidder
+            # self.evaluation_epsilon = 1
+            # uncomment for normal behaviour
+            self.evaluation_epsilon = -1
+            
             self.train = train
-            self.model_version = "testing"
+            self.model_version = "hope"
             self.optimizer = Adam(learning_rate=0.00001)
             self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
             self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"

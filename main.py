@@ -112,7 +112,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 break
         model.bidder.save()
         if model.test_veic != "?":
-            with open("./gained.txt", "w") as gained:
+            with open("./gained_"+str(model.simulationName)+".txt", "w") as gained:
                 gained.write(str(model.trained_veic.gained_money)+"\n")
                 gained.write(str(model.trained_veic.total_reroutes)+"\n")
         # uncomment this to get saved money

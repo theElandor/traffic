@@ -34,7 +34,7 @@ for cat, arr in data.items():
 
     ax.bar_label(p, label_type='center')
 
-ax.set_title('Tempo di attesa nel traffico e agli incroci')
+ax.set_title('Tempo di attesa nel traffico e agli incroci, bidderV1')
 ax.set_xlabel("Numero di veicoli")
 ax.set_ylabel("Tempo di attesa")
 ax.legend()

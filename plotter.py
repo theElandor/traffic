@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math as m
 import statistics as s
-gran = 90
+gran = 95
 
 filename = "reward.txt"
 
@@ -26,7 +26,8 @@ with open(filename) as f:
     x = [i for i in range(len(y))]
 
     x_points = [i for i in range(len(data))]
-    plt.xlabel("Sets of " + str(gran) + " function calls")
-    plt.ylabel(name)
+    plt.title("Funzione di reward nel tempo, bidderV1")
+    plt.xlabel("Gruppi da " + str(180) + " chiamate di funzione")
+    plt.ylabel("Reward")
     plt.plot(x, y, '--bo')
     plt.savefig(name, dpi=300)
