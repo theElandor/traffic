@@ -17,8 +17,8 @@ class Cooperative(IntersectionManager):
         self.boosted_cars = []
         self.not_boosted_cars = []
         self.test_veic = "?"
-        self.em_veic = [ "74", "75"]
-        self.sound_boost = False
+        self.em_veic = ["74", "75"]
+        self.sound_boost = True
         #huge budget is given to emergency vehicle
         for v in self.em_veic:
             VehiclesDict.vd[v].setBudget(1000000000)
@@ -49,7 +49,7 @@ class Cooperative(IntersectionManager):
         self.prev_action = []        
 
     def get_distance(self, veic, em_veic):
-        point1 = VehiclesDict.vd[em_veic].getPosition()
+        point1 = em_veic.getPosition()
         point2 = veic.getPosition()        
         if len(point1) != 2 or len(point2) != 2:
             raise ValueError("Error when calculating vehicles distance")
@@ -146,7 +146,7 @@ class Cooperative(IntersectionManager):
             if car.getID() not in self.boosted_cars:
                 self.boosted_cars.append(car.getID())                
             distance = self.get_distance(car, em_veic)
-            boost = 1+math.exp((1/math.log10(math.sqrt(distance))))
+            boost = 1+math.exp((1/math.log10(math.sqrt(distance)-9)))
             print("PBoost: E-"+str(car.getID()) + " = " + str(boost) + "\tdistance:"+str(distance))        
             return boost
         else:
