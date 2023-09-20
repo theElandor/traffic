@@ -14,7 +14,7 @@ final_data['std_off'] = []
 
 # id,count,mean,std,min,25%,50%,75%,max
 
-with open("./not_boosted_cars.txt") as b:
+with open("./boosted_cars.txt") as b:
     lines = b.read().splitlines()
     veics = [i for i in lines]
     not_boosted = []
@@ -81,7 +81,7 @@ for attribute, measurement in final_data.items():
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Tempo di attesa nel traffico')
 ax.set_xlabel('Numero di veicoli')
-ax.set_title('Tempo di attesa dei veicoli NON "boosted" nel traffico')
+ax.set_title('Tempo di attesa dei veicoli che ricevono il boost nel traffico')
 ax.set_xticks(points + width, x)
 ax.legend(loc='upper left', ncols=len(x))
 ax.set_ylim(0, 120)
