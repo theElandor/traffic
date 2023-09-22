@@ -142,12 +142,14 @@ class Cooperative(IntersectionManager):
         em_route = em_veic.getRoute()
         
         car_current_road = traci.vehicle.getRoadID(car.getID())
+        # sound boost is not needed for veics that are on the same lane,
+        # because they are alredy sponsored by the EV. So em_route_index + 1 is used.
         if car_current_road in em_route[(em_route_index+1)::]:
             if car.getID() not in self.boosted_cars:
                 self.boosted_cars.append(car.getID())                
             distance = self.get_distance(car, em_veic)
             boost = 1+math.exp((1/math.log10(math.sqrt(distance)-9)))
-            print("PBoost: E-"+str(car.getID()) + " = " + str(boost) + "\tdistance:"+str(distance))        
+            print("PBoost: " + em_veic.getID() + "-" + car.getID() + " = " + str(boost) + "\tdistance:"+str(distance))        
             return boost
         else:
             if car.getID() not in self.not_boosted_cars:
