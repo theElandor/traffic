@@ -3,11 +3,6 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Concatenate, Embedding, Reshape, Flatten
 from tensorflow.keras import Sequential
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Concatenate, Embedding, Reshape, Flatten
-from tensorflow.keras import Sequential
-import numpy as np
 import random
 from keras import layers
 from collections import deque
@@ -41,7 +36,7 @@ class Agent:
             # to test a random bidder
             # self.evaluation_epsilon = 1
             # uncomment for normal behaviour
-            self.evaluation_epsilon = -1
+            self.evaluation_epsilon = 1
             
             self.train = train
             self.model_version = "hope"
@@ -127,19 +122,25 @@ class Agent:
         def alighn_target_model(self):
             self.target_network.set_weights(self.q_network.get_weights())
                 
-        def retrain(self):  # network learns from past experience
-            minibatch = random.sample(self.experience_replay, self.batch_size)
-            for state, action, reward, next_state in minibatch:
-                print("DEBUG:" + str(state))
-                target = self.q_network.predict(state, verbose=0)
-                t = self.target_network.predict(next_state, verbose=0)  # retrieve data from past experience
-                # here we sum reward and q-value. This means that the reward
-                # function and the neural network must return "compatible" values.
-                target[0][action] = reward + self.gamma * np.amax(t)
+        def retrain(self):
+            # estrazione di un campione dell'experience replay
+            batch = random.sample(self.experience_replay, self.batch_size)
+
+            # per ogni esempio estratto
+            for state, action, reward, next_state in batch:
+                # viene applicata la q-learing rule
+                prediction = self.q_network.predict(state, verbose=0)
+                target = self.target_network.predict(next_state, verbose=0)
+                prediction[0][action] = reward + self.gamma * np.amax(target)
+                # viene salvato il valore della loss per l'analisi della convergenza
                 history = LossHistory()
-                self.q_network.fit(state, target, epochs=1, callbacks=[history])
+                # allenamento della rete
+                self.q_network.fit(state, prediction, epochs=1, callbacks=[history])
                 with open("loss.txt", "a") as f:
                     for n in history.losses:
                         f.write(str(n) + "\n")
             gc.collect()
             keras.backend.clear_session()
+            
+test = Agent(False, True)
+test.q_network.summary()

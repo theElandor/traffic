@@ -2,9 +2,9 @@ model: Coop
 CP: owp
 MCA: 1
 E: y
-Spn: 20
+Spn: 10
 Bdn: b
 Rts: f
 Stp: 5000
-VS: 130
+VS: 140
 RUNS: 1

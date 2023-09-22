@@ -48,3 +48,4 @@ with open("evaluation_data.txt", "w") as f:
     f.write("mean_traffic, std_traffic, mean_crossroad, std_crossroad\n")
     f.write(str(traffic_meanwt_booster) + ", " + str(traffic_stdwt_booster) + ", " + str(crossroad_meanwt_booster) + ", " + str(crossroad_stdwt_booster) + "\n")
     f.write(str(traffic_meanwt_off) + ", " + str(traffic_stdwt_off) + ", " + str(crossroad_meanwt_off) + ", " + str(crossroad_stdwt_off) + "\n")
+    

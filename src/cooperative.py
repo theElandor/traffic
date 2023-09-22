@@ -13,7 +13,7 @@ class Cooperative(IntersectionManager):
         self.load = True
         self.train = False
         self.writeSaved = False
-        self.simple_saver = True
+        self.simple_saver = False
         
         # evaluation section
         self.evaluation = False
@@ -73,7 +73,7 @@ class Cooperative(IntersectionManager):
         current_position = current_state[0][1]
 
         discount = prev_action / 10  # [0, 0.1, 0.2, 0.3...1]
-        position_reward = (prev_position - current_position)*0.6
+        position_reward = (prev_position - current_position)
         # final_reward = (self.alpha*(position_reward) + (1-self.alpha)*(1-discount))
         # if position_reward == 0:
             # final_reward = final_reward/2
@@ -156,7 +156,7 @@ class Cooperative(IntersectionManager):
                         print("UPDATING TARGET NETWORK")
                         self.train_count = 0
                         if not self.freeze:
-                            self.bidder.alighn_target_model()
+                            self.bidder.align_target_model()
                         else:
                             print("Model is freezed, not updating")
         action = self.bidder.act(current_state_input_encoded)

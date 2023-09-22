@@ -60,3 +60,13 @@ print(str(np.mean(gain_off)*100)[:5]+"% +-" + str(np.std(gain_off)*100)[:5])
 
 print("---------Gain_booster------------")
 print(str(np.mean(gain_booster)*100)[:5]+"% +-" + str(np.std(gain_booster)*100)[:5])
+
+with open("evaluation_data.txt", "w") as f:
+    f.write("mean_traffic, std_traffic, mean_crossroad, std_crossroad\n")
+    f.write(str(traffic_meanwt_booster) + ", " + str(traffic_stdwt_booster) + ", " + str(crossroad_meanwt_booster) + ", " + str(crossroad_stdwt_booster) + "\n")
+    f.write(str(traffic_meanwt_off) + ", " + str(traffic_stdwt_off) + ", " + str(crossroad_meanwt_off) + ", " + str(crossroad_stdwt_off) + "\n")
+
+with open("random_gained_data.txt", "w") as f:
+    f.write("mean, std\n")
+    f.write(str(np.mean(gain_booster)*100) + "," + str(np.std(gain_booster)*100) + "\n")
+    f.write(str(np.mean(gain_off)*100) + "," + str(np.std(gain_off)*100))
