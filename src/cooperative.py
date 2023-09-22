@@ -18,7 +18,7 @@ class Cooperative(IntersectionManager):
         self.not_boosted_cars = []
         self.test_veic = "?"
         self.em_veic = ["74", "75"]
-        self.sound_boost = True
+        self.sound_boost = ["75"]
         #huge budget is given to emergency vehicle
         for v in self.em_veic:
             VehiclesDict.vd[v].setBudget(1000000000)
@@ -146,9 +146,9 @@ class Cooperative(IntersectionManager):
         # because they are alredy sponsored by the EV. So em_route_index + 1 is used.
         if car_current_road in em_route[(em_route_index+1)::]:
             if car.getID() not in self.boosted_cars:
-                self.boosted_cars.append(car.getID())                
+                self.boosted_cars.append(car.getID())
             distance = self.get_distance(car, em_veic)
-            boost = 1+math.exp((1/math.log10(math.sqrt(distance)-9)))
+            boost = 1+math.exp((1/math.log10(math.sqrt(distance))))
             print("PBoost: " + em_veic.getID() + "-" + car.getID() + " = " + str(boost) + "\tdistance:"+str(distance))        
             return boost
         else:
@@ -220,12 +220,12 @@ class Cooperative(IntersectionManager):
             if self.settings['E'] == 'y':
                 enhance = self.multiplier*math.log(len(traffic_stop_list[car.getRoadID()]) + 1) + 1 ## get num of cars in the same lane and apply formula.
             else:
-                enhance = 1            
-            if self.sound_boost:
-                for e in self.em_veic:                    
-                    boost = self.getSoundBoost(car, e)                    
+                enhance = 1
+            for e in self.em_veic:
+                if e in self.sound_boost:
+                    boost = self.getSoundBoost(car, e)
             else:
-                boost = 1                
+                boost = 1
                 
             total_bid = int(car_bid * enhance * boost)
             bids.append([car, total_bid, car_bid, enhance, boost])            

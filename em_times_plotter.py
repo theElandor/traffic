@@ -18,7 +18,7 @@ for dirpath, dirnames, filenames in os.walk(directory):
                 for line in lines:
                     if line[:2] == "75":
                         data = line.split(",")
-                        mean = data[2]                        
+                        mean = data[2]
                         if filename == "on.txt":
                             y_on.append(float(mean))
                         else:
@@ -26,8 +26,8 @@ for dirpath, dirnames, filenames in os.walk(directory):
 x.sort()
 y_on.sort()
 y_off.sort()
-plt.plot(x, y_off,"--ro", label="sound boost OFF")
-plt.plot(x, y_on,"--bo", label="sound boost ON")
+plt.plot(x, y_off,"--o", label="sound boost OFF")
+plt.plot(x, y_on,"--o", label="sound boost ON")
 
 plt.xlabel("Numero di veicoli")
 plt.ylabel("Tempo di attesa medio nel traffico")
