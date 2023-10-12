@@ -16,6 +16,52 @@ final_data['std_booster']  = []
 # final_data['std_simple'] = []
 
 
+# used for pre-testing fase. It reads in qlearn_data folder.
+# as the output of tree command shows, each subdir contains
+# 1) crossroad waiting times of veics without bidder (crossroad_off)
+# 2) traffic waiting times of veics without bidder (traffic_off)
+# 3) crossroad waiting times of veics with bidder (crossroad_booster)
+# 4) traffic waiting times of veics with bidder (traffic_booster)
+# yeah, booster is not the proper name, it should have been "bidder" X).
+# The saved.txt file 
+# ├── 100
+# │   ├── crossroad_booster.txt
+# │   ├── crossroad_off.txt
+# │   ├── saved_74.txt
+# │   ├── traffic_booster.txt
+# │   └── traffic_off.txt
+# ├── 110
+# │   ├── crossroad_booster.txt
+# │   ├── crossroad_off.txt
+# │   ├── saved_74.txt
+# │   ├── traffic_booster.txt
+# │   └── traffic_off.txt
+# ├── 120
+# │   ├── crossroad_booster.txt
+# │   ├── crossroad_off.txt
+# │   ├── saved_74.txt
+# │   ├── traffic_booster.txt
+# │   └── traffic_off.txt
+# ├── 150
+# │   ├── crossroad_booster.txt
+# │   ├── crossroad_off.txt
+# │   ├── saved_74.txt
+# │   ├── traffic_booster.txt
+# │   └── traffic_off.txt
+# ├── 80
+# │   ├── crossroad_booster.txt
+# │   ├── crossroad_off.txt
+# │   ├── saved_74.txt
+# │   ├── traffic_booster.txt
+# │   └── traffic_off.txt
+# └── 90
+#     ├── crossroad_booster.txt
+#     ├── crossroad_off.txt
+#     ├── saved_74.txt
+#     ├── traffic_booster.txt
+#     └── traffic_off.txt
+
+
 evaluate = "crossroad"
 directory = "./qlearn_data/"
 for root, dirs, filenames in os.walk(directory):

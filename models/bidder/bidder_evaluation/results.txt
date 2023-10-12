@@ -1,7 +1,0 @@
-bidder is trained using random tipping between 0 and 20% of budget.
-for evaluation, on off and simple runs last 5k ticks.
-The problem with this model is that while normal bidding is deterministic,
-tipping is random (a random tip is chosen between 0 and 20% of budget).
-Need to train another model that uses the same tipping strategy as bidding
-(tip is budget/encounters, then the bidder can apply a discount based on prediction).
-
