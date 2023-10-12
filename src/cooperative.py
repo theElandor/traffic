@@ -21,7 +21,7 @@ class Cooperative(IntersectionManager):
         
         self.simulationName = "booster"
         self.test_veic = "74"
-        self.alpha = 0.4  # importance of traffic flow compared to using cheap bets
+        self.alpha = 0.3  # importance of traffic flow compared to using cheap bets
         
         self.piggy_bank = False
         self.freq = 10
@@ -51,7 +51,6 @@ class Cooperative(IntersectionManager):
         # function
         self.prev_state = []
         self.prev_action = []
-
     def get_reward(self, prev_state, prev_action, current_state):
 
         """
@@ -60,10 +59,8 @@ class Cooperative(IntersectionManager):
         state: [crossroad id, veic position]
         + crossroad id: numeric ID of the crossroad
         + veic position: veic position in lane (0: immediatly before crosser, -1 waiting to cross)
-        position reward: 1 if passes crossroad
-        position reward: 0.6 if increases position in traffic
-        position reward: 0 otherwise
-        discount reward: (1-discount)
+        reward: to be defined
+
         """
         # TODO: need to add bid value to minimize overall money spent
         print(prev_state, prev_action, current_state)
@@ -73,15 +70,12 @@ class Cooperative(IntersectionManager):
         current_position = current_state[0][1]
 
         discount = prev_action / 10  # [0, 0.1, 0.2, 0.3...1]
-        position_reward = (prev_position - current_position)
-        # final_reward = (self.alpha*(position_reward) + (1-self.alpha)*(1-discount))
-        # if position_reward == 0:
-            # final_reward = final_reward/2
-        if position_reward == 0:
-            position_reward = 0.1
+        position_reward = (prev_position - current_position)  # 1 if pos increased
         if prev_crossroad != current_crossroad:  # if veic crosses crossroad
-            position_reward = 5
-        final_reward = position_reward * (1-discount)
+            position_reward = 2
+        final_reward = (self.alpha*(position_reward) + (1-self.alpha)*(1-discount))
+        if prev_crossroad == current_crossroad and prev_position == current_position:
+            final_reward = -0.3  # if veic does not move, reward is 0
         self.cumulative_reward += final_reward
         print("reward: " + str(final_reward))
         with open("reward.txt", "a") as f:
@@ -89,7 +83,7 @@ class Cooperative(IntersectionManager):
         with open("cumulative_reward.txt", "a") as cf:
             cf.write(str(self.cumulative_reward)+"\n")
         return final_reward
-
+    
     def encode(self, state):
         """
         Function that encodes the state using soft encoding.
