@@ -141,6 +141,3 @@ class Agent:
                         f.write(str(n) + "\n")
             gc.collect()
             keras.backend.clear_session()
-            
-test = Agent(False, True)
-test.q_network.summary()
