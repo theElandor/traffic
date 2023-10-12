@@ -28,7 +28,7 @@ class Agent:
             self.action_size = 11  # index between 0 and 10
             self.experience_replay = deque()
             self.batch_size = 32
-            # discount rate --> importanza della reward futura rispetto alla reward attuale            
+            # discount rate --> importanza della reward futura rispetto alla reward attuale
             self.gamma = 0.3
             self.training_epsilon = 0.2
             self.exploration_epsilon = 1

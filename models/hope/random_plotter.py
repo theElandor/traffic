@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 
 
 width = 0.5
-data_120 = pd.read_csv("average_120B/random_gained_data.txt")
-data_130 = pd.read_csv("average_130B/random_gained_data.txt")
-data_140 = pd.read_csv("average_140B/random_gained_data.txt")
+data_120 = pd.read_csv("average_120R/random_gained_data.txt")
+data_130 = pd.read_csv("average_130R/random_gained_data.txt")
+data_140 = pd.read_csv("average_140R/random_gained_data.txt")
 print(data_120)
 
 veics = ("120", "130", "140")
