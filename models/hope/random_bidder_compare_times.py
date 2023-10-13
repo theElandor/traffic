@@ -1,0 +1,61 @@
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# REQUIRMENTS (needs to be generalized):
+# ./average_120B
+# ./average_130B
+# ./average_150B
+# each one of theese folders needs to contain a file called evaluation_data.txt
+# It is a csv formatted this way:
+
+# mean_traffic, std_traffic, mean_crossroad, std_crossroad
+# 20.24450180808092, 1.267402893222875, 14.856783061555536, 0.7008861785015196
+# 20.947898067067158, 0.9329796667319809, 16.140463411779805, 1.6073432761431514
+
+# the above example contains the mean and std of waiting times of the test vehicle.
+# first line -->  bidder is active
+# second line --> random bidder is active
+
+# the scripts produces a barplot that compares the waiting times
+# of the test vehicle (each bar corresponds to a different number of vehicles on the map).
+
+data_120 = pd.read_csv("compared_exp/average_120B/evaluation_data.txt")
+data_130 = pd.read_csv("compared_exp/average_130B/evaluation_data.txt")
+data_140 = pd.read_csv("compared_exp/average_140B/evaluation_data.txt")
+
+data = {
+    'traffic': np.array([data_120.iloc[0,0], data_120.iloc[1,0], data_130.iloc[0,0], data_130.iloc[1,0], data_140.iloc[0,0], data_140.iloc[1,0]]),
+    'crossroad': np.array([data_120.iloc[0,2], data_120.iloc[1,2], data_130.iloc[0,2], data_130.iloc[1,2], data_140.iloc[0,2], data_140.iloc[1,2]]),
+}
+errs = {
+    'traffic': np.array([data_120.iloc[0,1], data_120.iloc[1,1], data_130.iloc[0,1], data_130.iloc[1,1], data_140.iloc[0,1], data_140.iloc[1,1]]),
+    'crossroad': np.array([data_120.iloc[0,3], data_120.iloc[1,3], data_130.iloc[0,3], data_130.iloc[1,3], data_140.iloc[0,3], data_140.iloc[1,3]]),
+}
+colors = {
+    'traffic': 'cornflowerblue',
+    'crossroad': 'mediumpurple'
+}
+
+
+veicoli = ('120B', '120R', '130B', '130R', '140B', '140R')
+# veicoli = ('120', '140', '150')
+width = 0.6  # the width of the bars: can also be len(x) sequence
+
+
+fig, ax = plt.subplots()
+bottom = np.zeros(6)
+
+for cat, arr in data.items():
+    cropped = [round(n, 2) for n in arr]
+    p = ax.bar(veicoli, cropped, width, label=cat, bottom=bottom, yerr=errs[cat], color=colors[cat])
+    bottom += arr
+
+    ax.bar_label(p, label_type='center')
+
+ax.set_title('Tempo di attesa nel traffico e agli incroci, bidderV1 e Random')
+ax.set_xlabel("Numero di veicoli")
+ax.set_ylabel("Tempo di attesa medio")
+ax.legend()
+
+plt.savefig("output.png")

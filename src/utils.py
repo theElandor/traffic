@@ -449,7 +449,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
     :return:
     """        
     waiting = {}
-    veicDict = {}    
+    veicDict = {}
     crossing_cars = extra_configs['crossing_cars']
     crossing_rate = extra_configs['crossing_rate']
     for crossroad in dc.keys():
@@ -457,7 +457,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
         for veic in dc[crossroad]:
             waiting[crossroad].append(veic.getID())
             veicDict[veic.getID()] = veic
-    trajectories = {}   
+    trajectories = {}
     if extra_configs['simul']:
         for crossroad in dc.keys():
             trajectories[crossroad] = checkRoutes(dc, crossroad, in_edges, out_edges, log=True)    
@@ -579,13 +579,6 @@ def checkRoutes(dc, crossroad, in_edges, out_edges, log=False):
         starting_points[crossroad_in_edges[i-1]].next = starting_points[crossroad_in_edges[i]]
     #last->next = first, to create a circular list
     starting_points[crossroad_in_edges[n-1]].next = starting_points[crossroad_in_edges[0]]
-    
-    # if log:
-    #     for veic in dc[crossroad]:
-    #         index = veic.getRouteIndex()
-    #         print("Veic. " + str(veic.getID()) + " is currently in " + str(veic.getRoute()[index]))
-    #         print("Next edge for veic n. " + str(veic.getID()) + " is " + str(veic.getRoute()[index+1])
-
     for veic in dc[crossroad]: #marks the nodes, based on trajectories of veics waiting in the crossing.
         index = veic.getRouteIndex()
         veic_start = str(veic.getRoute()[index])
@@ -594,49 +587,4 @@ def checkRoutes(dc, crossroad, in_edges, out_edges, log=False):
         while(pointer.val != veic_end):
             pointer.occ.append(veic)
             pointer = pointer.next
-    # for key in starting_points:
-    #     print("Node: " + key)
-    #     print("Val: " + starting_points[key].val)
-    #     print("Next: " + starting_points[key].next.val)
-    #     print("Occ: " + str([v.getID() for v in starting_points[key].occ]))
-    #     print("----------------")
     return starting_points
-
-def generateGraph():
-    g = Graph([
-    ["A","6"],
-    ["A","2"],
-    ["A","D"],
-    ["A","B"],
-    ["B","A"],
-    ["B","E"],
-    ["B","C"],
-    ["B","3"],
-    ["C","B"],
-    ["C","F"],
-    ["C","10"],
-    ["C","4"],
-    ["D","A"],
-    ["D","E"],
-    ["D","G"],
-    ["D","11"],
-    ["E","B"],
-    ["E","F"],
-    ["E","H"],
-    ["E","D"],
-    ["F","C"],
-    ["F","15"],
-    ["F","I"],
-    ["F","E"],
-    ["G","D"],
-    ["G","H"],
-    ["G","22"],
-    ["G","16"],
-    ["H","E"],
-    ["H","I"],
-    ["H","23"],
-    ["H","G"],
-    ["I","H"],
-    ["I","F"],
-    ])
-    return g

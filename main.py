@@ -15,6 +15,13 @@ from src.utils import *
 from src.listeners import *
 from src.CrossGraph import Graph
 
+"""
+main program that handles the results of the simulation.
+The data containing waiting times (crossroad_total, crossroad_vehicles, traffic_total, traffic_vehicles, ecc..)
+will be stored in the data/ folder.
+If the simulation contains (for example) 140 vehicles, the data will also be written in qlearn_data/140/ folder.
+It is usefull to store the data according to the number of vehicles for evaluation plots.
+"""
 
 def initialize_files():
     """
@@ -30,27 +37,22 @@ def initialize_files():
     with open("reroute.txt", "w") as rer:
         rer.write("value\n")
 
-def collectOvertimeData(simulation_index, extra_configs):
-    for filename in os.listdir("test"):
-        file = os.path.join("test", filename)
-        with open(file, "r") as f:        
-            raw = [x.replace('\n','').split(' ') for x in f.readlines()]
-            for el in raw:
-                while '' in el:
-                    el.remove('')
-            raw.pop()
-            fine_data ={}
-            for element in raw:
-                fine_data[element[0]] = float(element[1])
-               
-        if not os.path.isdir("overtime_data/simul_"+simulation_index):
-            os.makedirs("overtime_data/simul_"+simulation_index)        
-        with open("overtime_data/"+"simul_"+simulation_index+"/"+filename+".txt", "w") as f:
-            f.write("mean " + str(fine_data["mean"]) + "\n")
-            f.write("std " + str(fine_data["std"]) + "\n")
-        with open("overtime_data/simul_"+simulation_index+"/name.txt","w") as f:
-            f.write(str(extra_configs))
-       
+def testSaveDir(veics):
+    """
+    input: number of simualted veics, read from config file.
+    Function that checks if qlearn_data/<veics> exists, to avoid running a simulation without 
+    the destination folder.
+    """
+    path = "qlearn_data/"+str(veics)+"/"
+    print(path)
+    if not os.path.exists(path):
+        c = input("qlearn_data/"+str(veics) + " destination folder does not exist. Do you want to create it now? (y/n) ")
+        if c == "y":
+            os.mkdir(path)
+            return True
+        else:
+            return False
+    return True
 
 def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo", extra_configs=None):
     sumoCmd = [sumoBinary, "-c", "sumo_cfg/project.sumocfg", "--threads", "8"]
@@ -67,24 +69,15 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         in_edges = oe.getInEdges()
         out_edges = getOutEdges(in_edges)
         routes = traci.route.getIDList()
-        
-        # spawnCars(extra_configs['spawn_rate'], settings, routes)
-        spawned_cars = extra_configs['spawn_rate']
-        timestamps = np.linspace(1000,settings['Stp'], 10)
-        x = settings['Stp']//100
-        spawn_points = np.linspace(0,int(settings['Stp']), x, endpoint=False)
-        
-        # toggle following line to spawn all veics at once
         spawnCars(settings['VS'], settings, routes)
         if model_chosen == 'Coop' or model_chosen == 'Comp':
-            listener = Listener(settings['Stp'], settings, extra_configs['spawn_rate'], timestamps, spawn_points, routes, crossroads_names)
+            listener = Listener(settings['Stp'], settings, routes, crossroads_names)
         else:
             listener = AutonomousListener(settings['Stp'], settings)
         traci.addStepListener(listener)
 
         log_file_initialization(chunk_name, settings, model_chosen, listener, time)
         # log_print("Simulation starts")
-
         if model_chosen == 'Coop':
             model = Cooperative(settings, extra_configs)
         elif model_chosen == 'Comp':
@@ -100,36 +93,23 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 for crossroad in crossroads.keys(): #for each crossroad
                     # log_print('Handling crossroad {}'.format(crossroad))
                     dc[crossroad], idle_times[crossroad], traffic[crossroad]= model.intersectionControl(crossroads[crossroad])
-                    #after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
+                    # after this function, dc[crossroad] contains ordered list of cars that have to depart from crossing
                     if not listener.getSimulationStatus():
                         break
                 departCars(settings, dc, idle_times, listener, in_edges, out_edges, extra_configs,traffic)
                 traci.simulationStep()
             if not listener.getSimulationStatus():
-                # log_print('Simulation finished')
                 print("Simulation finished!")
                 traci.close()
                 break
         model.bidder.save()
-        if model.test_veic != "?":
-            with open("./gained_"+str(model.simulationName)+".txt", "w") as gained:
+        if model.test_veic != "?":  # if bidder or random_bidder is active for the test vehicle
+            with open("qlearn_data/"+str(settings['VS'])+"/gained_"+str(model.simulationName)+".txt", "w") as gained:
                 gained.write(str(model.trained_veic.gained_money)+"\n")
                 gained.write(str(model.trained_veic.total_reroutes)+"\n")
-        # uncomment this to get saved money
-        if(model.writeSaved):  # write saved money only when bidder is active
-            if (model.piggy_bank):
-                percentage_saved = (model.bank / model.fair_bids)*100
-                with open("./qlearn_data/"+str(settings['VS'])+"/saved_"+str(model.test_veic)+".txt", "w") as saved_f:
-                    saved_f.write("fair_bids: " + str(model.fair_bids)+"%!\n")
-                    saved_f.write("bank: " + str(model.bank)+"%!\n")
-                    saved_f.write("percentage of money saved: " + str(percentage_saved)+"%!\n")
-            else:
-                with open("./qlearn_data/"+str(settings['VS'])+"/saved_"+str(model.test_veic)+".txt", "w") as saved_f:
-                    saved_f.write("money used: " + str(model.fair_bids)+"%!\n")
                     
     except traci.exceptions.FatalTraCIError:
         print("Saving manager brain....")
-        # log_print('Simulation interrupted')
         print("Simulation interrupted")
     return crossroads_names, model
 
@@ -183,36 +163,14 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
 
     if q is not None:
         q.put(int(cross_total['mean']))
-        q.put(int(traffic_total['mean']))
-        
-    collectOvertimeData(extra_configs['simulation_index'], extra_configs)
+        q.put(int(traffic_total['mean']))        
     return
 
 if __name__ == '__main__':
     initialize_files()
-    g = generateGraph()
-    # models = ['EB', 'DA'] EA = emergent behaviour, DA = decentralized Auction
-    choice_pt = PrettyTable()
-    choice_pt.field_names = ['#', 'Configuration']
-    choice_pt.add_row(['1', 'Read configuration files in folder \'configs\' [default]'])
-    choice_pt.add_row(['2', 'Insert configuration parameters manually'])
-    # uncomment this section to get standard config selection
-    # try:
-    #     print(choice_pt.get_string())
-    #     choice = int(input('Choice: '))
-    # except Exception as e:
-    #     print(e)
-    #     choice = 1
-
-    choice = 1
-    if choice == 1:
-        configs = read_config()
-    else:
-        configs = manual_config(['Coop', 'Comp', 'EB', 'DA'])
-
+    configs = read_config()
     sumo = input('Graphical Interface [y/N]: ')
     sumo = 'sumo-gui' if sumo == 'y' or sumo == 'Y' else 'sumo'
-
     counter = 0
 
     q = multiprocessing.Queue()
@@ -220,6 +178,8 @@ if __name__ == '__main__':
     extra_configs = {'simul':False, 'multiplier':1,'crossing_rate':6,'crossing_cars':1, 'congestion_rate':True, 'spawn_rate':1, 'simulation_index':"1"}
     # DEBUG: uncomment below line when testing with EB
     for settings in configs:
+        if not testSaveDir(settings['VS']):
+            break
         processes = []
         time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
@@ -232,7 +192,6 @@ if __name__ == '__main__':
             p.join()
         # Writes the output
         if int(settings['RUNS']) > 1:
-            #all_times = pd.DataFrame(columns=['cwt', 'twt']) 
             file_name = f'[MULTIRUN_{time}]' + settings['model']
             for s in settings.keys():
                 file_name += '_' + s + ':' + str(settings[s])

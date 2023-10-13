@@ -30,13 +30,10 @@ class Agent:
             self.batch_size = 32
             # discount rate --> importanza della reward futura rispetto alla reward attuale
             self.gamma = 0.3
+            
             self.training_epsilon = 0.2
             self.exploration_epsilon = 1
-
-            # to test a random bidder
-            # self.evaluation_epsilon = 1
-            # uncomment for normal behaviour
-            self.evaluation_epsilon = 1
+            self.evaluation_epsilon = 0
             
             self.train = train
             self.model_version = "hope"

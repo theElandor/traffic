@@ -12,7 +12,6 @@ class Cooperative(IntersectionManager):
         self.congestion_rate = extra_configs["congestion_rate"]
         self.load = True
         self.train = False
-        self.writeSaved = False
         self.simple_saver = False
         
         # evaluation section
@@ -22,8 +21,7 @@ class Cooperative(IntersectionManager):
         self.simulationName = "booster"
         self.test_veic = "74"
         self.alpha = 0.3  # importance of traffic flow compared to using cheap bets
-        
-        self.piggy_bank = False
+    
         self.freq = 10
         # parameter needed in training phase.
 
@@ -218,18 +216,11 @@ class Cooperative(IntersectionManager):
                                 en.write(crossroad.name + "," + str(len(crossroad_stop_list))+"\n")
                             sponsor_modifier = self.predict_bid(current_state_input)
                             tip_discount = (sponsor_modifier / 10)
-                            if self.piggy_bank:
-                                self.fair_bids += tip  # money that would have been spent normally
-                                self.bank += tip - (tip*tip_discount)  # money saved
-                            else:
-                                self.fair_bids += tip*tip_discount  # money that would have been spent normally
+                            self.fair_bids += tip*tip_discount  # money that would have been spent normally
                             discounted_tip = tip * tip_discount  # apply discount to tip
                             print("Current state is: " + str(current_state))
                     sponsorship += discounted_tip  # add only discounted tip
-                    if self.piggy_bank:
-                        sp.setBudget(sp.getBudget() - tip)  # decurt full tip (non discounted) from wallet
-                    else:
-                        sp.setBudget(sp.getBudget() - discounted_tip)  # decurt discounted tip
+                    sp.setBudget(sp.getBudget() - discounted_tip)  # decurt discounted tip
             car_bid += sponsorship
             sponsors[car] = sponsorship
 
@@ -247,13 +238,8 @@ class Cooperative(IntersectionManager):
 
         log_print('bidSystem: vehicle {} pays {}'.format(winner.getID(), winner_bid - 1))
         # if winner is trained veic, then we update the amount of money spent and saved
-        if winner.getID() == self.test_veic and self.piggy_bank:
-            winner.setBudget(winner.getBudget() - self.last_flat_bid)
-            self.bank += self.last_flat_bid - self.last_discounted_bid
-            self.fair_bids += self.last_flat_bid
-        else:
-            winner.setBudget(winner.getBudget() - winner_bid)
-            self.fair_bids += winner_bid
+        winner.setBudget(winner.getBudget() - winner_bid)
+        self.fair_bids += winner_bid
         # REDISTRIBUTE winning bid without sponsorship
         sponsorship_winner = sponsors[winner]
         self.bidPayment(bids, winner_bid-sponsorship_winner)
