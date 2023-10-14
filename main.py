@@ -103,7 +103,13 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
                 traci.close()
                 break
         model.bidder.save()
-        if model.test_veic != "?":  # if bidder or random_bidder is active for the test vehicle
+        
+        # if the bidder is active, then write on file
+        # the amount of money saved and the total number
+        # of reroutes. This way we can compute the
+        # average amount of money saved on each route.
+        
+        if model.test_veic != "?":
             with open("qlearn_data/"+str(settings['VS'])+"/gained_"+str(model.simulationName)+".txt", "w") as gained:
                 gained.write(str(model.trained_veic.gained_money)+"\n")
                 gained.write(str(model.trained_veic.total_reroutes)+"\n")
@@ -113,7 +119,6 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         print("Simulation interrupted")
     return crossroads_names, model
 
-# function made to organize and plot gathered data, during the "run" function
 # runs the simulation with the RUN function, then just plots the data.
 def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo-gui", lock=None, q=None, extra_configs=None):
     # change qlearn variable to write different file in directory
@@ -139,7 +144,6 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
     crossroads_wt.to_csv(data_file.format('crossroads') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_wt.to_csv(data_file.format('traffic') + '.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     
-    # uncomment this for evaluation
     crossroad_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/crossroad_'+str(simulationName)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
     traffic_vehicles.to_csv('./qlearn_data/'+str(configs['VS'])+'/traffic_'+str(simulationName)+'.txt', header=['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max'])
 

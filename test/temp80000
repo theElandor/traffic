@@ -1,9 +1,0 @@
-count    61111.000000
-mean        15.579372
-std         14.671350
-min          7.000000
-25%          7.000000
-50%          7.000000
-75%         21.000000
-max        323.000000
-Name: traffic_waiting_time, dtype: float64

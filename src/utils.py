@@ -40,12 +40,6 @@ def read_config():
 
     os.system('clear')
     print(pt)
-    #uncomment this part to have standard config selection
-    # try:
-    #     selector = int(input(BOLD + 'Choose configuration file to run [hit \'Enter\' to execute all]: ' + ENDC))
-    #     if selector < 0 or selector > len(config_files): raise Exception()
-    # except:
-    #     selector = 0
     selector = 1
     pt.clear()
 
@@ -435,9 +429,9 @@ def spawnCars(cars_to_spawn, settings,routes, offset=0):
         if settings['model'] == 'EB':
             VehicleEB(str(i), settings, congestion)
         if settings['model'] == 'DA':
-            VehicleDA(str(i), settings)        
+            VehicleDA(str(i), settings)
         # Vehicles created are automatically added to VehiclesDict
-    return 
+    return
 
 def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_configs,traffic,non_players = []):
     """
@@ -447,7 +441,7 @@ def departCars(settings, dc, idle_times, listener, in_edges, out_edges,extra_con
     :param idle_times: dictionary containing, for each crossroad, idle_time to be curtailed from waiting times
     :param listener: 'StepListener' used to check simulation status (step limit is respected)
     :return:
-    """        
+    """
     waiting = {}
     veicDict = {}
     crossing_cars = extra_configs['crossing_cars']
