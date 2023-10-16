@@ -34,8 +34,6 @@ def initialize_files():
         flow.write("crossroad,veics\n")
     with open("encounters.txt", "w") as en:
         en.write("crossroad,trafficStopList\n")
-    with open("reroute.txt", "w") as rer:
-        rer.write("value\n")
 
 def testSaveDir(veics):
     """
@@ -179,7 +177,7 @@ if __name__ == '__main__':
 
     q = multiprocessing.Queue()
     lock = multiprocessing.Lock()
-    extra_configs = {'simul':False, 'multiplier':1,'crossing_rate':6,'crossing_cars':1, 'congestion_rate':True, 'spawn_rate':1, 'simulation_index':"1"}
+    extra_configs = {'simul':False, 'multiplier':1, 'crossing_rate':6,'crossing_cars':1, 'congestion_rate':True, 'spawn_rate':1, 'simulation_index':"1"}
     # DEBUG: uncomment below line when testing with EB
     for settings in configs:
         if not testSaveDir(settings['VS']):

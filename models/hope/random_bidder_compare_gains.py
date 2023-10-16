@@ -21,9 +21,9 @@ import matplotlib.pyplot as plt
 # of the bidder and of the random bidder.
 
 width = 0.5
-data_120 = pd.read_csv("compared_exp/average_120B/random_gained_data.txt")
-data_130 = pd.read_csv("compared_exp/average_130B/random_gained_data.txt")
-data_140 = pd.read_csv("compared_exp/average_140B/random_gained_data.txt")
+data_120 = pd.read_csv("compared_exp/average_120R/random_gained_data.txt")
+data_130 = pd.read_csv("compared_exp/average_130R/random_gained_data.txt")
+data_140 = pd.read_csv("compared_exp/average_140R/random_gained_data.txt")
 print(data_120)
 
 veics = ("120", "130", "140")

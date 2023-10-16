@@ -5,11 +5,13 @@ import numpy as np
 
 
 x = []
+test_veic = 74
 final_data = {}
 final_data['mean_off'] = []
-final_data['std_off']  = []
+final_data['std_off'] = []
 final_data['mean_booster'] = []
-final_data['std_booster']  = []
+
+final_data['std_booster'] = []
 # final_data['mean_on']  = []
 # final_data['std_on']   = []
 # final_data['mean_simple'] = []
@@ -22,8 +24,23 @@ final_data['std_booster']  = []
 # 2) traffic waiting times of veics without bidder (traffic_off)
 # 3) crossroad waiting times of veics with bidder (crossroad_booster)
 # 4) traffic waiting times of veics with bidder (traffic_booster)
-# yeah, booster is not the proper name, it should have been "bidder" X).
-# The saved.txt file 
+# 5) The saved.txt file, that contains information about the amount of saved money.
+# actually, booster is not the proper name, it should have been "bidder").
+
+# The '*_booster.txt' files are related to simulations where the bidder is active on the test vehicle.
+# On the other hand, '*_off.txt' files are related to simulations where the bidder is either disabled or
+# it is set to behave like a random bidder (So it applies a random discount at each iteration).
+
+
+# The script (which is quite naive honestly) plots for each number of vehicles the mean and std of bot
+# traffic waiting time and crossroad waiting time for the test vehicle.
+# TODO: refactor this whole plotter, need a better one.
+
+# I used this script mainly to have an idea if the bidding strategy that I was testing influenced
+# kinda heavily the waiting times of the test vehicle. (I run 1 simulation for each number of vehicles, with
+# and without the bidder, then run this script).
+# If the results were encouraging, then I made more simulations and plot the average times (check /traffic/models/hope folder).
+
 # ├── 100
 # │   ├── crossroad_booster.txt
 # │   ├── crossroad_off.txt
@@ -61,7 +78,6 @@ final_data['std_booster']  = []
 #     ├── traffic_booster.txt
 #     └── traffic_off.txt
 
-
 evaluate = "crossroad"
 directory = "./qlearn_data/"
 for root, dirs, filenames in os.walk(directory):
@@ -70,9 +86,9 @@ for root, dirs, filenames in os.walk(directory):
         for file in os.listdir(os.path.join(directory, dirname)):
             if file != "saved_74.txt":
                 data = pd.read_csv(os.path.join(directory, dirname, file))
-                veic = data.iloc[74, 0]
-                mean = data.iloc[74, 2]
-                std  = data.iloc[74, 3]
+                veic = data.iloc[test_veic, 0]
+                mean = data.iloc[test_veic, 2]
+                std  = data.iloc[test_veic, 3]
                 if file == evaluate + "_off.txt":
                     final_data['mean_off'].append(mean)
                     final_data['std_off'].append(std)
@@ -83,7 +99,7 @@ points = np.arange(len(x))
 width = 0.1
 multiplier = 0
 # colors = ['orangered','coral', 'forestgreen','limegreen','dodgerblue','deepskyblue']
-colors = ['orangered','coral', 'darkorchid','mediumorchid']
+colors = ['orangered', 'coral', 'darkorchid', 'mediumorchid']
 i = 0
 fig, ax = plt.subplots(layout = 'constrained')
 improv = []
@@ -98,7 +114,7 @@ for attribute, measurment in final_data.items():
     if i == 1:
         multiplier += 1
     if i == 2:
-        ax.bar_label(container=rects, labels=improv, padding=45)   
+        ax.bar_label(container=rects, labels=improv, padding=45)
     i += 1
 ax.set_ylabel("Valore")
 ax.set_xlabel("Numero di veicoli")

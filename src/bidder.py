@@ -10,6 +10,8 @@ from tensorflow import keras
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import initializers
 import gc
+import sys
+import os
 
 class LossHistory(keras.callbacks.Callback):
     
@@ -39,7 +41,7 @@ class Agent:
     def __init__(self, load, train):
 
         """
-        Initialization of some internal variables.             
+        Initialization of some internal variables.
         """
 
         self.activation = 'relu'
@@ -50,8 +52,8 @@ class Agent:
         # change this to load a different model
         self.model_version = "hope"
         self.optimizer = Adam(learning_rate=0.00001)
-        self.q_path = "/home/eros/traffic/models/"+str(self.model_version)+"/q-network"
-        self.target_path = "/home/eros/traffic/models/"+str(self.model_version)+"/target-network"
+        self.q_path = os.path.dirname(__file__) + "/../models/"+str(self.model_version)+"/q-network"
+        self.target_path = os.path.dirname(__file__) + "/../models/"+str(self.model_version)+"/target-network"
         self.exploration_epsilon = 1
         self.evaluation_epsilon = 0
 
@@ -147,7 +149,7 @@ class Agent:
         print("PICKING action with index:  " + str(np.argmax(q_values[0])))
         return np.argmax(q_values[0])
 
-    def alighn_target_model(self):
+    def update_target_model(self):
         """
         Function that sets the target-network equal to the q-network.
         Reed thesis for more info on this.

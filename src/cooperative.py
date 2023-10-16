@@ -3,7 +3,6 @@ import math
 import numpy as np
 from src.bidder import Agent
 
-
 class Cooperative(IntersectionManager):
     def __init__(self, settings, extra_configs):
         super().__init__(settings)
@@ -13,17 +12,27 @@ class Cooperative(IntersectionManager):
         """
         enable self.load if you want to load a model from the
         "models" directory. The model version is specified
-        in the bidder class (bidder.py file). The curren
-        stable version of the model is named hope
+        in the bidder class (bidder.py file). The current
+        stable version of the model is named 'hope'
         """
         self.load = True
         self.train = False
+        
+        """
+        IMPORTANT:
+        simulationName is used to rename the output file. 'booster'
+        is related to simulations where the bidder is active.
+        'off' is used for the simulation used for comparison, so for
+        the random bidder or for the normal behaviour.
+        It is really important to use theese specific names or the
+        plotters will not be able to read the output files (XD).
+        """
+        self.simulationName = "booster"
 
         """
         simple saver is a configuration that never make sponsorships
         and always bet simple_discount*bid money in auctions.
         set self.simple_saver to true to enable it on the test veic.
-        Use this configuration when self.load == False obv.
         """
         
         self.simple_saver = False
@@ -39,14 +48,6 @@ class Cooperative(IntersectionManager):
         limit the memory size.
         """
         self.max_memory = 400
-
-        """
-        simulationName is used to rename the output file. 'booster' 
-        is usually related to simulations where the bidder is active.
-        'off' is used for the simulation used for comparison, so for
-        the random bidder or for the normal behaviour.
-        """
-        self.simulationName = "booster"
         
         """
         The tests used veic 74 as the test vehicle. To "install" the bidder
@@ -78,7 +79,8 @@ class Cooperative(IntersectionManager):
         agent performs an action, leading to a low variability in 
         the training dataset.
         """
-        self.freq = 10
+        self.train_freq = 10
+        self.update_freq = 10
 
         """
         bidder initialization.
@@ -198,16 +200,16 @@ class Cooperative(IntersectionManager):
                 else:
                     self.bidder.epsilon = 0.1
                 print("eps: "+str(self.bidder.epsilon))
-                if self.sample > self.freq:  # train once each 10 actions
+                if self.sample > self.train_freq:  # train once each 10 actions
                     self.sample = 0
                     self.train_count += 1
-                    print("Training(" + str(self.train_count)+"/"+str(self.freq)+")")
+                    print("Training(" + str(self.train_count)+"/"+str(self.update_freq)+")")
                     self.bidder.retrain()
-                    if self.train_count == self.freq:
+                    if self.train_count == self.update_freq:
                         print("UPDATING TARGET NETWORK")
                         self.train_count = 0
                         if not self.freeze:
-                            self.bidder.align_target_model()
+                            self.bidder.update_target_model()
                         else:
                             print("Model is freezed, not updating")
         action = self.bidder.act(current_state_input_encoded)
