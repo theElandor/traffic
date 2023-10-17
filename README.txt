@@ -186,6 +186,63 @@ Theese are the main steps you need to take:
 	we did just 1 simulation for each number of vehicles.
 	(Actually 2 simulations, one with the bidder ON and the other with the bidder OFF);
 	It would be nice to have an average of multiple simulations for each number of vehicles.
-
+	
+13) Take a look at the ~/traffic/models/hope folder.
+	+ q-network/, target-network/ : they contain the model;
+	+ training_data/: folder that contains the backup of some
+	  data gathered during the training phase. It is really important
+	  to store this data in a secure place.
+	+ compared_exp/: it is the main folder containg the data that is plotted
+	  to produce the 2 types of plots contained in the thesis_plots/ folder.
+	  For each number of vehicles (120, 130, 140) there is a folder containing
+	  the data from 8 different simulations (1/ 2/ 3/ ...).
+	  The final resulting structure is something like the one showed at the end of this paragraph.
+	  To fill this folder there is not an automated script (needs to be done).
+	  The data was manually copied from (for example) qlearn_data/120/ to models/hope/compared_exp/average_120B/1/.
+	  Yes, it is a long process.
+	+ The folders ending with "B" are referred to simulations where beta was set to 0.1, while
+	  the ones ending with "R" are filled with data from simulations where beta was set to 0.2.
+	  Just ignore the "R" ones for now.
+	+ In the next paragraph I'll show you how to plot the data contained in this folder.
+	  ├── average_120B
+	  │   ├── 1
+	  │   │   ├── crossroad_booster.txt
+	  │   │   ├── crossroad_off.txt
+	  │   │   ├── gained_booster.txt
+	  │   │   ├── gained_off.txt
+	  │   │   ├── traffic_booster.txt
+	  │   │   └── traffic_off.txt
+	  │   ├── 2
+	  │   │   ├── crossroad_booster.txt
+	  │   │   ├── crossroad_off.txt
+	  │   │   ├── gained_booster.txt
+	  │   │   ├── gained_off.txt
+	  │   │   ├── traffic_booster.txt
+	  │   │   └── traffic_off.txt
+	  │   ├── 3
+	  │   │   ├── crossroad_booster.txt
+	  │   │   ├── crossroad_off.txt
+	  │   │   ├── gained_booster.txt
+	  │   │   ├── gained_off.txt
+	  │   │   ├── traffic_booster.txt
+	  │   │   └── traffic_off.txt
+      ...
+	  ...
+	  ...
+	  ...
+	  │   ├── evaluation_data.txt
+	  │   ├── evaluation.py
+	  │   └── random_gained_data.txt
      
-   
+ 14) If you followed the process untill here succesfully,
+ 	 you can run the script  ~/traffic/models/hope/compared_exp/average_120B/evaluation.py
+	 for each one of average_120B/ average_130B/ and average_140B/ folders. The output
+	 of this script are the files "evaluation_data.txt" and "random_gained_data.txt".
+	 They are simple csv files that "sum up" the content of the subfolders, they
+	 are ready to be plotted.
+15)  Now you can run the ~/traffic/models/hope/random_bidder_compare_gains.py and the
+	 ~/traffic/models/hope/random_bidder_compare_gains.py scripts to make the plots.
+	 Theese scripts by default read the data in the subfolders contained in
+	 ~/traffic/models/hope/compared_exp/ ending with "B", you can easily
+	 change that in the code.
+
