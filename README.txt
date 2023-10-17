@@ -252,3 +252,15 @@ Theese are the main steps you need to take:
   By changing the "gran" variable you can choose the granularity of the
   plot. By default this parameter is set to 180.
   	 
+
+-------------------UPDATE 2023-10-17-----------------------
+Now most of the parameters are updatable using the configuration file, so you
+don't have to browse the code manually
+TF : train frequency
+UF : target network update frequency
+MV : model version
+EXE: exploration epsilon
+EVE: evaluation epsilon
+BS : Batch Size
+G : gamma
+E1,E2,E3 : different levels of epsilon used during training
