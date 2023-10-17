@@ -6,8 +6,8 @@ you a more modular idea of how this simulator works.
 The sections are:
 + Definitions;
 + Training and Testing;
-+ Plotting;
 + Example workflow;
++ Extra;
 
 ------------DEFINITIONS-----------------
 DEFINITIONS:
@@ -246,3 +246,9 @@ Theese are the main steps you need to take:
 	 ~/traffic/models/hope/compared_exp/ ending with "B", you can easily
 	 change that in the code.
 
+-------------------EXTRA-----------------------
++ If you want to plot the reward function, use the ~/traffic/plotter.py script.
+  It reads the reward.txt file in the same folder.
+  By changing the "gran" variable you can choose the granularity of the
+  plot. By default this parameter is set to 180.
+  	 
