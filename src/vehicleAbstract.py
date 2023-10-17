@@ -1,9 +1,9 @@
 import abc
 from random import randint
-
 from src.utils import *
 from src.vehiclesDict import VehiclesDict
-
+import random
+import time
 '''
     Abstract class of a generic vehicle, to be expanded and customized for different models
 '''
@@ -17,17 +17,24 @@ class VehicleAbstract(abc.ABC):
         self.managedLanes = []
         self.gained_money = 0
         self.total_reroutes = 0
+        test_veic = settings['TV']
+        upper_bound = settings['UB']
+        print(type(test_veic))
 
         self.waitedTimes = defaultdict(list)
-
         self.traffic_waited_times = defaultdict(list)
         self.traffic_waiting_time = 0
 
         self.crossroads_waited_times = defaultdict(list)
         self.crossroad_waiting_time = 0
         VehiclesDict.addVehicle(self)
-        #uncomment following line to slow down vehicles
-        traci.vehicle.setMaxSpeed(self.id, 4)
+        # uncomment following line to slow down vehicles
+        if self.id == test_veic:
+            traci.vehicle.setMaxSpeed(self.id, 4)
+        else:
+            speed = random.randint(4, upper_bound)
+            print("DEBUG SPEED: " + str(speed))
+            traci.vehicle.setMaxSpeed(self.id, speed)
     def __str__(self):
         return "Vehicle " + self.getID()
 

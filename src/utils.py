@@ -36,7 +36,7 @@ def read_config():
     pt.field_names = ['#', 'File']
     pt.align['File'] = 'l'
     for c in config_files:
-        pt.add_row([config_files.index(c) + 1, c])   
+        pt.add_row([config_files.index(c) + 1, c])
 
     os.system('clear')
     print(pt)
@@ -54,7 +54,8 @@ def read_config():
         f = f.removeprefix("\"").removeprefix("\'").removesuffix("\"")
         with open(f, "r") as ymlfile:
             configs.append(yaml.load(ymlfile, Loader=yaml.FullLoader))
-
+    for s in configs:
+        print(type(s['beta']))
     return configs
 
 def manual_config(models):
@@ -412,13 +413,14 @@ def infrastructureRetrieving(crossroad_names):
 
 #offset is needed when vehicles are spawned overtime,
 #to see changes according to traffic flow.
-def spawnCars(cars_to_spawn, settings,routes, offset=0):
+def spawnCars(settings, routes, offset=0):
     """
     Spawn the requested cars into the scenario
     :param cars_to_spawn: number of cars to be spawn
     :param settings: dictionary containing current simulation settings, to be passed in each 'Vehicle' instance
     :return: dictionary of 'Vehicle' instances, labeled with given ID
     """
+    cars_to_spawn = settings['VS']
     congestion = True
     for i in range(cars_to_spawn):
         # print("Spawning car: " + str(i+offset))

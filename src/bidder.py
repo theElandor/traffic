@@ -38,7 +38,7 @@ class Agent:
     and is responsible for the training(fitting) procedure.
     """
 
-    def __init__(self, load, train):
+    def __init__(self, settings):
 
         """
         Initialization of some internal variables.
@@ -48,33 +48,32 @@ class Agent:
         self.loss = 'mse'
         self.action_size = 11  # index between 0 and 10
         self.experience_replay = deque()
-        self.train = train
+        self.train = settings['train']
+        self.load = settings['load']
         # change this to load a different model
-        self.model_version = "hope"
+        self.model_version = settings['MV']
         self.optimizer = Adam(learning_rate=0.00001)
         self.q_path = os.path.dirname(__file__) + "/../models/"+str(self.model_version)+"/q-network"
         self.target_path = os.path.dirname(__file__) + "/../models/"+str(self.model_version)+"/target-network"
-        self.exploration_epsilon = 1
-        self.evaluation_epsilon = 0
+        self.exploration_epsilon = settings['EXE']
+        self.evaluation_epsilon = settings['EVE']
 
         """
         Initialization of some hyperparameters.
         The following are the values used to train the "hope" model.
 
-        self.training_epsilon = 0.2
         self.batch_size = 32
         self.gamma = 0.3
         """
-        self.training_epsilon = 0.2
-        self.batch_size = 32
-        self.gamma = 0.3
+        self.batch_size = settings['BS']
+        self.gamma = settings['G']
 
-        if not load:
+        if not self.load:
             self.q_network = self._build_model()
             self.target_network = self._build_model()
         else:
             self.set_evaluation_epsilon()
-            self.load(self.q_path, self.target_path)
+            self.load_model(self.q_path, self.target_path)
 
     def save(self):
         """
@@ -87,19 +86,13 @@ class Agent:
         Used when memory is still less big than batch size
         """
         self.epsilon = self.exploration_epsilon
-    def set_training_epsilon(self):
-        """
-        Used when memory size is bigger than batch size
-        and the model is trying to get new examples in memory
-        """
-        self.epsilon = self.training_epsilon
     def set_evaluation_epsilon(self):
         """
         Used when memory size is bigger than batch size
         and the model is trying to get new examples in memory
         """
         self.epsilon = self.evaluation_epsilon
-    def load(self, q_path, target_path):
+    def load_model(self, q_path, target_path):
         """
         Method that loads the models from specified paths
         INPUT:

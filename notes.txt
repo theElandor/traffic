@@ -1,0 +1,6 @@
+TODOs
++ Random Speed, lower bound is current speed;
++ Change beta during training;
++ Random Routes
+  + sample 40% of simulated veics;
+  + each one of theese veics has a chance to change is route dynamically;

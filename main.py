@@ -67,7 +67,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         in_edges = oe.getInEdges()
         out_edges = getOutEdges(in_edges)
         routes = traci.route.getIDList()
-        spawnCars(settings['VS'], settings, routes)
+        spawnCars(settings, routes)
         if model_chosen == 'Coop' or model_chosen == 'Comp':
             listener = Listener(settings['Stp'], settings, routes, crossroads_names)
         else:
@@ -165,7 +165,7 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
 
     if q is not None:
         q.put(int(cross_total['mean']))
-        q.put(int(traffic_total['mean']))        
+        q.put(int(traffic_total['mean']))
     return
 
 if __name__ == '__main__':
@@ -174,12 +174,12 @@ if __name__ == '__main__':
     sumo = input('Graphical Interface [y/N]: ')
     sumo = 'sumo-gui' if sumo == 'y' or sumo == 'Y' else 'sumo'
     counter = 0
-
     q = multiprocessing.Queue()
     lock = multiprocessing.Lock()
     extra_configs = {'simul':False, 'multiplier':1, 'crossing_rate':6,'crossing_cars':1, 'congestion_rate':True, 'spawn_rate':1, 'simulation_index':"1"}
     # DEBUG: uncomment below line when testing with EB
     for settings in configs:
+        settings['TV'] = str(settings['TV'])
         if not testSaveDir(settings['VS']):
             break
         processes = []

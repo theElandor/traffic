@@ -8,15 +8,15 @@ class Cooperative(IntersectionManager):
         super().__init__(settings)
         self.multiplier = extra_configs["multiplier"]
         self.congestion_rate = extra_configs["congestion_rate"]
-
+        
         """
         enable self.load if you want to load a model from the
         "models" directory. The model version is specified
         in the bidder class (bidder.py file). The current
         stable version of the model is named 'hope'
         """
-        self.load = True
-        self.train = False
+        self.load = settings['load']
+        self.train = settings['train']
         
         """
         IMPORTANT:
@@ -27,7 +27,7 @@ class Cooperative(IntersectionManager):
         It is really important to use theese specific names or the
         plotters will not be able to read the output files (XD).
         """
-        self.simulationName = "booster"
+        self.simulationName = settings['name']
 
         """
         simple saver is a configuration that never make sponsorships
@@ -37,9 +37,8 @@ class Cooperative(IntersectionManager):
         
         self.simple_saver = False
         self.simple_discount = 0.3
-        
         self.evaluation = False
-        
+
         """
         max_memory parameter has been used during training.
         Not super usefull if you train for a reasonable amount
@@ -61,8 +60,7 @@ class Cooperative(IntersectionManager):
         If you want to disable the bidder, please just set the variable like this:
         self.test_veic = "?"
         """
-        self.test_veic = "74"
-        
+        self.test_veic = settings['TV']
         """
         This parameter controls the importance of placing cheap bets.
         A value close to 0 will make the bidder receive more reward
@@ -70,22 +68,24 @@ class Cooperative(IntersectionManager):
         its position in traffic.
         The stable model uses alpha = 0.3;
         """
-        self.alpha = 0.3
-
+        self.alpha = settings['alpha']
         """
         self.freq is another hyperparameter. It controls after how
         many action steps the model should learn. If set to 1,
         then the "train" function is called every time that the
-        agent performs an action, leading to a low variability in 
+        agent performs an action, leading to a low variability in
         the training dataset.
         """
-        self.train_freq = 10
-        self.update_freq = 10
-
+        self.train_freq = settings['TF']
+        self.update_freq = settings['UF']
+        self.E1 = settings['E1']
+        self.E2 = settings['E2']
+        self.E3 = settings['E3']
+        
         """
         bidder initialization.
         """
-        self.bidder = Agent(load=self.load, train=self.train)
+        self.bidder = Agent(settings)
 
         """
         some internal variables initialization.
@@ -163,12 +163,13 @@ class Cooperative(IntersectionManager):
         return encoding
 
     def predict_bid(self, current_state_input):
+        print("debug epsilon " + str(self.bidder.epsilon))
         # current_state_input --> [[crossroad, position, len(dc)]]
         # need to convert current_state input into a format that is readable from the NN.
         current_state_input_encoded = np.array([self.encode(current_state_input)])
         prev_state_input_encoded = np.array([self.encode(self.prev_state)])
         
-        if self.bidder.train:
+        if self.train:
             print("TESTING VEIC PREDICTING WITH THIS INPUT:")
             print(prev_state_input_encoded, current_state_input_encoded)
             if len(prev_state_input_encoded[0]):  # skips first prediction to avoid error
@@ -194,11 +195,11 @@ class Cooperative(IntersectionManager):
                 # a full memory needs less exploration, so the epsilon is really low.
                 # when inserting examples in a full memory, FIFO policy is used.
                 if memsize < self.max_memory/2:
-                    self.bidder.epsilon = 0.3
+                    self.bidder.epsilon = self.E3
                 elif memsize > self.max_memory/2 and memsize < self.max_memory:
-                    self.bidder.epsilon = 0.2
+                    self.bidder.epsilon = self.E2
                 else:
-                    self.bidder.epsilon = 0.1
+                    self.bidder.epsilon = self.E1
                 print("eps: "+str(self.bidder.epsilon))
                 if self.sample > self.train_freq:  # train once each 10 actions
                     self.sample = 0
@@ -254,7 +255,7 @@ class Cooperative(IntersectionManager):
             if car.getID() == test_veic:
                 self.trained_veic = car
                 if self.simple_saver:
-                    car_bid = car_bid * 0.3
+                    car_bid = car_bid * self.simple_discount
                 else:  # in this case veic uses the bidder to predict the best reward
                     bid_modifier = self.predict_bid(current_state_input)
                     discount = (bid_modifier / 10)  # discount will be between 0 and 1
