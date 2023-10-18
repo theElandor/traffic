@@ -3,6 +3,9 @@ CP: owp
 MCA: 1
 E: y
 Spn: 10
+betaL: 0.05
+betaU: 0.15
+betaR: 0.1
 Bdn: b
 Rts: f
 Stp: 10000
@@ -22,6 +25,3 @@ EXE: 1
 EVE: 0
 BS: 32
 G: 0.3
-E1: 0.3
-E2: 0.2
-E3: 0.1

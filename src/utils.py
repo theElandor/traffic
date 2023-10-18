@@ -54,8 +54,6 @@ def read_config():
         f = f.removeprefix("\"").removeprefix("\'").removesuffix("\"")
         with open(f, "r") as ymlfile:
             configs.append(yaml.load(ymlfile, Loader=yaml.FullLoader))
-    for s in configs:
-        print(type(s['beta']))
     return configs
 
 def manual_config(models):

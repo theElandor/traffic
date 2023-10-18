@@ -78,9 +78,9 @@ class Cooperative(IntersectionManager):
         """
         self.train_freq = settings['TF']
         self.update_freq = settings['UF']
-        self.E1 = settings['E1']
-        self.E2 = settings['E2']
-        self.E3 = settings['E3']
+        self.E1 = 0.1
+        self.E2 = 0.2
+        self.E3 = 0.3
         
         """
         bidder initialization.
@@ -269,10 +269,8 @@ class Cooperative(IntersectionManager):
             sponsorship = 0
             if self.settings['Spn'] > 0:
                 for sp in traffic_stop_list[car.getRoadID()]:
-                    if sp.getID() == test_veic:
-                        tip = sp.getBudget()/sp.crossroad_counter
-                    else:
-                        tip = sp.makeSponsor()
+                    # tip = sp.getBudget()/sp.crossroad_counter before test veic bidded this way.
+                    tip = sp.makeSponsor()
                     discounted_tip = tip  # if veic is not trained, then discounted_tip is the same as tip
                     if sp.getID() == test_veic:
                         if self.simple_saver:
