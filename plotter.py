@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import math as m
 import statistics as s
-gran = 180
+gran = 175
 
 filename = "reward.txt"
 
