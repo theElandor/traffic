@@ -67,6 +67,7 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
         in_edges = oe.getInEdges()
         out_edges = getOutEdges(in_edges)
         routes = traci.route.getIDList()
+        print(routes)
         spawnCars(settings, routes)
         if model_chosen == 'Coop' or model_chosen == 'Comp':
             listener = Listener(settings['Stp'], settings, routes, crossroads_names)

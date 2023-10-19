@@ -21,8 +21,8 @@ class VehicleCA(VehicleAuction):
         if self.settings['TV'] != self.getID():
             if np.random.rand() <= R:
                 beta = (random.choice([i for i in range(LB, UB+1)]))/100
-                print("RANDOM BETA: {}".format(str(beta)))
+                # print("RANDOM BETA: {}".format(str(beta)))
             else:
                 beta = (int(self.getID()) % (UB-LB+1)+LB)/100
-        print("veic = {} beta = {}".format(self.getID(), beta))
+        # print("veic = {} beta = {}".format(self.getID(), beta))
         return int(self.getBudget() * beta)

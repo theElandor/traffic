@@ -1,2 +1,1 @@
 crossroad,amount
-C,8.0

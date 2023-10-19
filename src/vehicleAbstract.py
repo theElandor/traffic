@@ -48,14 +48,7 @@ class VehicleAbstract(abc.ABC):
         """
         current_edge = self.getRoadID()
         rer = -1
-        # if self.getID() == "74":
-        #     print("rerouting")
-        #     print(self.route)
-        #     print(current_edge)
-        #     print(self.route[rer])
         if current_edge == self.route[rer]: # do stuff only if reroute is necessary
-            # budget is set to its default only if the reroute is effectively necessary
-            # need try catch, in EB model vehicles don't have budget, so refill is not necessary
             try:
                 delta = 100 - self.budget
                 with open('reroute.txt', "a") as r:
@@ -69,34 +62,33 @@ class VehicleAbstract(abc.ABC):
                 self.total_reroutes += 1
             except:
                 print("Rerouted veic " + self.id + " without refilling budget\n")
-            if self.settings['Rts'] == 'f':
-                #  simply iterate over the same route, because end edge and start edge are adjacent.
+            if self.settings['Rts'] == 'f': # statitc case
                 self.route = self.route[rer::] + self.route[:rer:]
                 if not self.lazy_refill:
                     self.managedLanes = [item for item in self.route if item in self.managedLanes]
                 pass
-            else:
-                route_length = len(self.route)
-                self.route = [current_edge]
-                for i in range(rer, route_length - rer):
-                    nodes = current_edge[4::]  # remove 'edge' from edgeID
-                    nodes = nodes.split('-')  # now two nodes' IDs are in nodes list
-                    prev_node = nodes[0]
-                    next_node = nodes[1]
-                    # Choose an edge suitable for the car (edgexy, edgeyz) but it cannot return in the previous lane (x!=z)
-                    next_edge_pattern = r"edge" + next_node + "-([^" + prev_node + "]|(1[^" + prev_node + "]+))$"
-                    possible_next_edges = []
+            else: # dynamic case
+                if self.getID() == '70':
+                    route_length = len(self.route)
+                    self.route = [current_edge]
+                    for i in range(rer, route_length - rer):
+                        nodes = current_edge[4::]  # remove 'edge' from edgeID
+                        nodes = nodes.split('-')  # now two nodes' IDs are in nodes list
+                        prev_node = nodes[0]
+                        next_node = nodes[1]
+                        # Choose an edge suitable for the car (edgexy, edgeyz) but it cannot return in the previous lane (x!=z)
+                        next_edge_pattern = r"edge" + next_node + "-([^" + prev_node + "]|(1[^" + prev_node + "]+))$"
+                        possible_next_edges = []
 
-                    for e in traci.edge.getIDList():
-                        if re.match(next_edge_pattern, e):
-                            possible_next_edges.append(e)
+                        for e in traci.edge.getIDList():
+                            if re.match(next_edge_pattern, e):
+                                possible_next_edges.append(e)
 
-                    # A random edge is chosen between the suitable
-                    assert (len(possible_next_edges) >= 1)
-                    chosen_edge = possible_next_edges[randint(0, len(possible_next_edges) - 1)]
-                    self.route.append(chosen_edge)
-                    current_edge = chosen_edge
-
+                        # A random edge is chosen between the suitable
+                        assert (len(possible_next_edges) >= 1)
+                        chosen_edge = possible_next_edges[randint(0, len(possible_next_edges) - 1)]
+                        self.route.append(chosen_edge)
+                        current_edge = chosen_edge
             traci.vehicle.setRoute(self.id, list(self.route))
             # When rerouting I count new crossroads to cross
             self.crossroad_counter = self.countCrossroads()

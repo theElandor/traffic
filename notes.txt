@@ -1,8 +1,8 @@
 TODOs
 + Random Speed, lower bound is current speed;
---> done, upper bound can now be changed with config file.
+  --> done, upper bound can now be changed with config file.
 + Change beta during training;
---> need to change Spn parameter.
+  --> need to change Spn parameter.
 + Random Routes
   + sample 40% of simulated veics;
   + each one of theese veics has a chance to change is route dynamically;
