@@ -26,7 +26,8 @@ data_140 = pd.read_csv("compared_exp/average_140B/random_gained_data.txt")
 print(data_120)
 matplotlib.use('TkAgg')
 
-veics = ("120", "130", "140")
+# veics = ("120B, 120R", "130B, 130R", "140B, 140R")
+veics = (120,130,140)
 means = {
     'BidderV1': (round(data_120.iloc[0, 0], 2), round(data_130.iloc[0, 0], 2), round(data_140.iloc[0, 0],2)),
     'Random': (round(data_120.iloc[1, 0],2), round(data_130.iloc[1, 0],2), round(data_140.iloc[1, 0],2)),
@@ -54,8 +55,8 @@ for attribute, measurement in means.items():
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Valuta media risparmiata')
 ax.set_xlabel('Numero di veicoli')
-ax.set_title('Valuta risparmiata, bidderV1 e Random')
-ax.set_xticks(x + width, veics)
+ax.set_title('Valuta risparmiata, Bidder(B) e Random(R)')
+ax.set_xticks(x+width/2, labels = ['120B, 120R', '130B,130R', '150B, 150R'])
 ax.legend(loc='upper left', ncols=3)
 ax.set_ylim(0, 100)
 
