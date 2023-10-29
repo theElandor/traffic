@@ -9,4 +9,6 @@ rm flow.txt
 rm gained.txt
 rm gained_booster.txt
 rm gained_off.txt
+rm actions.txt
+rm Q-values.txt
 rm *.png

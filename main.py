@@ -34,6 +34,12 @@ def initialize_files():
         flow.write("crossroad,veics\n")
     with open("encounters.txt", "w") as en:
         en.write("crossroad,trafficStopList\n")
+    with open("reward.txt", "w") as en:
+        pass
+    with open("actions.txt", "w") as ac:
+        pass
+    with open("Q-values.txt", "w") as qv:
+        pass
 
 def testSaveDir(veics):
     """
@@ -120,14 +126,15 @@ def run(settings, model_chosen, chunk_name=0, time = datetime.now().strftime("%Y
 
 # runs the simulation with the RUN function, then just plots the data.
 def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), sumoBinary="/usr/bin/sumo-gui", lock=None, q=None, extra_configs=None):
+    excluded_settings = ['model', 'CP', 'MCA', 'E', 'Bdn', 'Rts', 'RUNS']
     # change qlearn variable to write different file in directory
     crossroads_names, model = run(configs, configs['model'], chunk_name, time, sumoBinary, extra_configs)
     cross_total, traffic_total, df_waiting_times, crossroads_wt, traffic_wt, crossroad_vehicles, traffic_vehicles = collectWT(crossroads_names)
     simulationName = model.simulationName
     file_name = f'{chunk_name}[' + time + ']' + configs['model']
     for s in configs.keys():
-        file_name += '_' + s + ':' + str(configs[s])
-    
+        if s not in excluded_settings:
+            file_name += '_' + s + ':' + str(settings[s])
 
     with open('data/'+file_name+'|extra_configs.txt', "w") as f:
         for k in extra_configs:
@@ -170,6 +177,7 @@ def sim(configs, chunk_name=0, time = datetime.now().strftime("%Y-%m-%d_%H:%M:%S
     return
 
 if __name__ == '__main__':
+    excluded_settings = ['model', 'CP', 'MCA', 'E', 'Bdn', 'Rts', 'RUNS']
     initialize_files()
     configs = read_config()
     sumo = input('Graphical Interface [y/N]: ')
@@ -197,7 +205,8 @@ if __name__ == '__main__':
         if int(settings['RUNS']) > 1:
             file_name = f'[MULTIRUN_{time}]' + settings['model']
             for s in settings.keys():
-                file_name += '_' + s + ':' + str(settings[s])
+                if s not in excluded_settings:
+                    file_name += '_' + s + ':' + str(settings[s])
             file_name += '|{}'
             cwt_file = open('data/' + file_name.format('cross-total') + '.txt', 'w')
             twt_file = open('data/' + file_name.format('traffic-total') + '.txt', 'w')

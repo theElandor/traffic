@@ -163,7 +163,6 @@ class Cooperative(IntersectionManager):
         return encoding
 
     def predict_bid(self, current_state_input):
-        print("debug epsilon " + str(self.bidder.epsilon))
         # current_state_input --> [[crossroad, position, len(dc)]]
         # need to convert current_state input into a format that is readable from the NN.
         current_state_input_encoded = np.array([self.encode(current_state_input)])

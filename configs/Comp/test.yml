@@ -1,26 +1,34 @@
+# Standard configs
 model: Coop
 CP: owp
 MCA: 1
 E: y
+Bdn: b
+Rts: f
+RUNS: 1
+TV: 74
+
+# Simulation settings
+Stp: 30000
+VS: 120
+UB: 7
+
+# Startup configuration
+train: True
+load: False
+name: train
+MV: hope
+
+#sponsorship policy
 Spn: 10
 betaL: 0.05
 betaU: 0.15
 betaR: 0.1
-Bdn: b
-Rts: d
-Stp: 10000
-VS: 120
-RUNS: 1
-TV: 74
-UB: 7
-beta: 0.1
-train: False
-load: True
-name: booster
+
+# hyperparameters
 alpha: 0.3
 TF: 10
 UF: 10
-MV: hope
 EXE: 1
 EVE: 0
 BS: 32

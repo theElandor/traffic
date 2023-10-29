@@ -132,15 +132,21 @@ class Agent:
         Some debug prints are present.
         """
         if np.random.rand() <= self.epsilon:
-            # print("EXPLORING.......")
-            return random.randrange(self.action_size)
-        # print("MAXIMIZING.....")
+            action = random.randrange(self.action_size)
+            with open("actions.txt", "a") as a:
+                a.write("{}\n".format(str(action)))
+            return action
         q_values = self.q_network.predict(state, verbose=0)
+        with open("Q-values.txt", "a") as qv:
+            qv.write("{}\n".format(np.max(q_values[0])))
         print("Q-VALUES: " + str(q_values))
         gc.collect()
         keras.backend.clear_session()
-        print("PICKING action with index:  " + str(np.argmax(q_values[0])))
-        return np.argmax(q_values[0])
+        action = np.argmax(q_values[0])
+        print("PICKING action with index:  " + str(action))
+        with open("actions.txt", "a") as a:
+            a.write("{}\n".format(str(action)))
+        return action
 
     def update_target_model(self):
         """
